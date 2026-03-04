@@ -115,18 +115,15 @@ Launch VRChat and enter the world. When you are touched, the vest will vibrate.
 | `excludeFaceTracking` | true / false | Exclude face params (FT/, viseme, etc.) |
 | `contactTimeoutMs` | 100–1000 (250) | If no OSC for N ms — reset contact. 250 = normal, 400–500 = if it "sticks", 150–200 = faster release |
 | `extra` | string array [] | Extra parameter names to process |
+| `ignore` | string array [] | Ignoring avatar parameters |
 
 Example of ignoring parameters (so they don’t drive the vest but can stay on the avatar):
 
 ```json
 "contactParams": {
-  "value": "ContactChest",
-  "speed": "ContactSpeed",
-  "zone": "ContactZone",
-  "acceptAll": false,
-  "excludeFaceTracking": true,
-  "contactTimeoutMs": 300,
-  "extra": [],
+  .
+  .
+  .
   "ignore": [
     "touch/headpat",
     "touch/footleft",
@@ -136,7 +133,9 @@ Example of ignoring parameters (so they don’t drive the vest but can stay on t
 }
 ```
 
-By default: `contact`, `vest`, `proximity`, `touch`, `haptic`.
+By default, in addition to the explicitly specified `value` / `speed` / `zone` / `extra`, the analyzer also considers any OSC parameters whose names contain the substrings `contact`, `vest`, `proximity`, `touch`, `haptic`, or `chest` (case-insensitive) to be "contact parameters".
+For example, the parameters `Touch/Boop`, `MyAvatar_Contact_Chest`, or `Proximity_LeftHand` will automatically be included in the contact calculation, even if they are not in `extra`.
+If such a parameter should not affect the vest, it can be added to `contactParams.ignore`.
 
 ---
 

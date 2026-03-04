@@ -115,18 +115,16 @@ npm start
 | `excludeFaceTracking` | true / false | Исключать параметры лица (FT/, viseme и т.д.) |
 | `contactTimeoutMs` | 100–1000 (250) | Если OSC не обновлялся N мс — контакт сбросить. 250 = норм, 400–500 = если «залипает», 150–200 = быстрее отпускание |
 | `extra` | массив строк [] | Доп. имена параметров для обработки |
+| `ignore` | массив строк [] | Игнорирование параметров аватара |
+
 
 Пример настройки игнора параметров (чтобы они не трогали жилет, но могли быть на аватаре):
 
 ```json
 "contactParams": {
-  "value": "ContactChest",
-  "speed": "ContactSpeed",
-  "zone": "ContactZone",
-  "acceptAll": false,
-  "excludeFaceTracking": true,
-  "contactTimeoutMs": 300,
-  "extra": [],
+  .
+  .
+  .
   "ignore": [
     "touch/headpat",
     "touch/footleft",
@@ -134,11 +132,15 @@ npm start
     "vf108_superneko.realkiss.contact.activator"
   ]
 }
+
 ```
 
-По умолчанию обрабатываются: `contact`, `vest`, `proximity`, `touch`, `haptic`.
+По умолчанию, кроме явно указанных `value` / `speed` / `zone` / `extra`, анализатор также считает «контактными» любые OSC-параметры, в имени которых встречаются подстроки: `contact`, `vest`, `proximity`, `touch`, `haptic` или `chest` (без учёта регистра).
+Например, параметры `Touch/Boop`, `MyAvatar_Contact_Chest` или `Proximity_LeftHand` автоматически попадут в расчёт контакта, даже если их нет в `extra`.
+Если такой параметр не должен трогать жилет, его можно добавить в `contactParams.ignore`.
 
 ---
+
 
 ### contactTimeoutMs — подсказки
 
