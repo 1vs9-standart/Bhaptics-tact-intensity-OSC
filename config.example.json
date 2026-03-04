@@ -14,17 +14,17 @@
     "remote": "127.0.0.1:15881"
   },
   "intensity": {
-    "impactThreshold": 0.5,
+    "impactThreshold": 0.4,
     "velocityMin": 0.2,
-    "velocityMax": 3.5,
-    "durationMin": 0.2,
+    "velocityMax": 5.0,
+    "durationMin": 0.1,
     "durationMax": 1.3,
-    "longContactMs": 1500,
+    "longContactMs": 2000,
     "emaAlpha": 0.4,
-    "cooldownMs": 40,
+    "cooldownMs": 30,
     "sustainCooldownMs": 150,
-    "minIntensity": 0.15,
-    "maxIntensity": 2.0
+    "minIntensity": 0.1,
+    "maxIntensity": 1.8
   },
   "haptic": {
     "useDotMode": true,
