@@ -18,7 +18,7 @@
     "velocityMin": 0.2,
     "velocityMax": 5.0,
     "durationMin": 0.1,
-    "durationMax": 1.3,
+    "durationMax": 1.25,
     "longContactMs": 2000,
     "emaAlpha": 0.4,
     "cooldownMs": 30,
