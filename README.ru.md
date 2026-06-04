@@ -1,10 +1,10 @@
-# VRChatOSC-bhaptics-js (v1.0)
+# VRChatOSC-bhaptics-js (v2.0)
 
 [English version](README.md)
 
 Приложение передаёт касания с аватара на TactSuit и подстраивает силу под тип касания (удар или плавное). Имеет тот же функционал, что и оригинальный VRChatOSC от Bhaptics
 
-**Сделано:** [1vs9](https://1vs9.dev/) · [VRChat](https://vrchat.com/home/user/usr_fe820c0f-02c9-48b0-9459-853198136a24) · [GitHub](https://github.com/1vs9-standart)
+**Репозиторий:** [GitHub](https://github.com/1vs9-standart/VRChatOSC-bhaptics-js)
 
 ---
 
@@ -21,9 +21,9 @@
 
 ### 1. Настройка
 
-1. Создай свой `config.json` и скопируй настройки с `config.example.json`
-2. Зайди на [developer.bhaptics.com](https://developer.bhaptics.com/applications), создай приложение
-3. Вставь `appId` и `apiKey` в `config.json` (раздел `bhaptics`)
+1. Зайди на [developer.bhaptics.com](https://developer.bhaptics.com/applications), создай приложение
+2. Запусти дашборд и открой вкладку **Settings / Настройки**
+3. Вставь `appId` и `apiKey` в **Settings → bHaptics**
 
 ### 2. Запуск
 
@@ -57,7 +57,9 @@ npm start
 
 ---
 
-## Параметры config.json
+## Настройки в браузере
+
+Все настройки редактируются в браузере во вкладке **Settings / Настройки** и сохраняются локально в `user-settings.json`. Старый способ через `config.json` / `config.example.json` больше не используется.
 
 ### ui — интерфейс
 

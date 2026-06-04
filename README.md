@@ -1,10 +1,10 @@
-# VRChatOSC-bhaptics-js (v1.0)
+# VRChatOSC-bhaptics-js (v2.0)
 
 [Русский](README.ru.md)
 
 The app relays touch data from the avatar to TactSuit and adjusts intensity by touch type (impact vs smooth). It has the same functionality as the original VRChatOSC from Bhaptics.
 
-**Made by:** [1vs9](https://1vs9.dev/) · [VRChat](https://vrchat.com/home/user/usr_fe820c0f-02c9-48b0-9459-853198136a24) · [GitHub](https://github.com/1vs9-standart)
+**Repository:** [GitHub](https://github.com/1vs9-standart/VRChatOSC-bhaptics-js)
 
 ---
 
@@ -21,9 +21,9 @@ The app relays touch data from the avatar to TactSuit and adjusts intensity by t
 
 ### 1. Setup
 
-1. Create your `config.json` and copy the settings from `config.example.json`
-2. Go to [developer.bhaptics.com](https://developer.bhaptics.com/applications), create an application
-3. Put `appId` and `apiKey` in `config.json` (section `bhaptics`)
+1. Go to [developer.bhaptics.com](https://developer.bhaptics.com/applications), create an application
+2. Launch the dashboard and open the **Settings** tab
+3. Put `appId` and `apiKey` into **Settings → bHaptics**
 
 ### 2. Launch
 
@@ -57,7 +57,9 @@ Launch VRChat and enter the world. When you are touched, the vest will vibrate.
 
 ---
 
-## config.json parameters
+## Browser Settings
+
+All settings are edited from the browser in the **Settings** tab and saved locally to `user-settings.json`. The old `config.json` / `config.example.json` workflow is no longer used.
 
 ### ui — interface
 

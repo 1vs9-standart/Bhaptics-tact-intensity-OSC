@@ -1,14 +1,22 @@
 /**
- * VRChatOSC-bhaptics-js — VRChat OSC → bHaptics middleware
+ * VRChatOSC-bhaptics-js — точка входа: связывает VRChat OSC, жилет bHaptics и Lovense.
  */
 import { config } from './config.js';
-import { checkPort, freePorts } from './port-check.js';
-import { createOSCListener } from './osc-listener.js';
-import { createStateAnalyzer, isFaceTrackingParam } from './state-analyzer.js';
-import { createIntensityEngine } from './intensity-engine.js';
-import { dashboardState } from './dashboard-state.js';
-import { startDashboard } from './dashboard.js';
-import { combineMotorValues } from './motor-utils.js';
+import { checkPort, freePorts } from './util/port-check.js';
+import { createOSCListener } from './vrchat/osc-listener.js';
+import { createStateAnalyzer, isFaceTrackingParam } from './bhaptics/state-analyzer.js';
+import { createIntensityEngine } from './bhaptics/intensity-engine.js';
+import { dashboardState } from './dashboard/state.js';
+import { startDashboard } from './dashboard/server.js';
+import { combineParsedMotorValues } from './bhaptics/motor-utils.js';
+import { systemSettings, onSettingsUpdate } from './settings/store.js';
+import { createLovenseEngine } from './lovense/engine.js';
+import { createLovenseBridge } from './lovense/bridge.js';
+import { createLovenseLoop } from './lovense/loop.js';
+import { createVrcConfigCheck } from './vrchat/vrc-config-check.js';
+import { createVrchatOscquery } from './vrchat/oscquery.js';
+
+const OSC_STALE_MS = 15_000;
 
 async function main() {
   console.log('[VRChatOSC-bhaptics-js] Запуск...');
@@ -28,7 +36,7 @@ async function main() {
   ]);
 
   if (!port9001.free) {
-    console.error(`[VRChatOSC-bhaptics-js] Порт 9001 (OSC) занят`);
+    console.error(`[VRChatOSC-bhaptics-js] Порт ${oscPort} (OSC) занят`);
     process.exit(1);
   }
   if (!portUi.free) {
@@ -39,15 +47,27 @@ async function main() {
   if (!port9000.free) {
     console.log('[VRChatOSC-bhaptics-js] VRChat подключён (порт 9000 занят)');
   }
-  console.log(`[VRChatOSC-bhaptics-js] OSC :9001 | Dashboard :${uiPort}`);
+  dashboardState.osc.portStatus = port9001.free ? 'ok' : 'busy';
+  dashboardState.osc.vrchatPortOpen = !port9000.free;
+  console.log(`[VRChatOSC-bhaptics-js] OSC :${oscPort} | Dashboard :${uiPort}`);
 
-  const stateAnalyzer = createStateAnalyzer(config.contactParams);
-  const intensityEngine = createIntensityEngine(config);
+  const lovenseEngine = createLovenseEngine(() => systemSettings.lovense);
 
+  const stateAnalyzer = createStateAnalyzer(
+    () => config.contactParams,
+    (paramName) => {
+      const lv = systemSettings.lovense;
+      if (!lv?.enabled || !lv.triggerVest) return false;
+      return lovenseEngine.isTracked(paramName);
+    }
+  );
+  const intensityEngine = createIntensityEngine(() => systemSettings.intensity);
 
   const vestFrontMax = 19;
   const vestBackMax = 19;
-  const clusterSize = config.haptic?.motorClusterSize ?? 1;
+  function getClusterSize() {
+    return config.haptic?.motorClusterSize ?? 1;
+  }
   let lastLogSummary = '';
   let lastLogTime = 0;
 
@@ -69,14 +89,18 @@ async function main() {
     return { zone: 'Chest', motorIndex: null, rawMotorIndex: null };
   }
 
+  function parseActiveParams(activeParams) {
+    return activeParams.map(({ param, value }) => ({ ...parseZoneAndMotor(param), param, value }));
+  }
+
   function zoneFromParam(p) {
     const lp = (p || '').toLowerCase();
     const frontMatch = lp.match(/vest_front[_-]?(\d+)|vestfront[_-]?(\d+)/i);
     const backMatch = lp.match(/vest_back[_-]?(\d+)|back[_-]?(\d+)/i);
     if (frontMatch) {
       const raw = parseInt(frontMatch[1] || frontMatch[2] || '0', 10);
-      const idx0 = Math.max(0, raw - 1); // 1-20 -> 0-19
-      const row = Math.floor(Math.min(15, idx0) / 4); // 4x4 сетка
+      const idx0 = Math.max(0, raw - 1);
+      const row = Math.floor(Math.min(15, idx0) / 4);
       return row <= 1 ? 'chest' : 'stomach';
     }
     if (backMatch) {
@@ -97,7 +121,6 @@ async function main() {
     const { allowZones, allowWhile, lastOscParams, stats } = dashboardState;
     const params = lastOscParams || {};
 
-    // 1) Ограничения по состоянию (Grounded / Seated / InStation / AFK)
     const hasStateParams =
       'IsGrounded' in params || 'InStation' in params || 'AFK' in params || 'Seated' in params;
     if (hasStateParams && stats.messagesReceived >= 5) {
@@ -113,23 +136,117 @@ async function main() {
       if (!stateOk) return false;
     }
 
-    // 2) Ограничения по зонам (Chest / Stomach / UpperBack / LowerBack)
-    const toCheck = activeParams?.length
-      ? activeParams.map((a) => a.param)
-      : [dashboardState.contact?.lastParam].filter(Boolean);
-    if (toCheck.length === 0) return false;
+    if (activeParams?.length) {
+      return activeParams.some(({ param }) => {
+        const zoneKey = zoneFromParam(param);
+        return allowZones[zoneKey] !== false;
+      });
+    }
 
-    // Если зона явно выключена (false) — блочим, иначе считаем включённой по умолчанию.
-    return toCheck.some((param) => {
-      const zoneKey = zoneFromParam(param);
-      const v = allowZones[zoneKey];
-      return v !== false;
-    });
+    const lastParam = dashboardState.contact?.lastParam;
+    if (!lastParam) return false;
+    return allowZones[zoneFromParam(lastParam)] !== false;
   }
 
   const { stop, hapticsBridge } = startDashboard(config.ui?.port ?? 1969);
 
-  const oscListener = createOSCListener(
+  const lovenseBridge = createLovenseBridge(
+    () => systemSettings.lovense,
+    (patch) => {
+      const lv = dashboardState.lovense;
+      if (patch.status !== undefined) lv.status = patch.status;
+      if (patch.error !== undefined) lv.error = patch.error;
+      if (patch.url !== undefined) lv.url = patch.url;
+      if (patch.deviceCount !== undefined) lv.deviceCount = patch.deviceCount;
+      if (patch.deviceNames !== undefined) lv.deviceNames = patch.deviceNames;
+    }
+  );
+
+  let oscStaleTimer = null;
+  function markOscLive(ts = Date.now()) {
+    dashboardState.osc.lastPacketAt = ts;
+    dashboardState.osc.stale = false;
+    if (oscStaleTimer) clearTimeout(oscStaleTimer);
+    oscStaleTimer = setTimeout(() => {
+      oscStaleTimer = null;
+      dashboardState.osc.stale = true;
+      lovenseEngine.clearOnAvatarChange();
+    }, OSC_STALE_MS);
+  }
+
+  let oscListener = null;
+
+  function applyBulkEntries(entries, timestamp = Date.now()) {
+    if (!entries?.length) return;
+    const p = dashboardState.lastOscParams;
+    for (const { paramName, value } of entries) {
+      if (!isFaceTrackingParam(paramName)) p[paramName] = value;
+      if (systemSettings.lovense?.enabled) lovenseEngine.ingest(paramName, value, timestamp);
+    }
+  }
+
+  const vrchatOscquery = createVrchatOscquery(
+    () => systemSettings,
+    {
+      onStatus: (snap) => { Object.assign(dashboardState.oscQuery, snap); },
+      onBulk: (entries, ts) => applyBulkEntries(entries, ts),
+    }
+  );
+  vrchatOscquery.start();
+
+  const lovenseLoop = createLovenseLoop({
+    getConfig: () => systemSettings.lovense,
+    engine: lovenseEngine,
+    bridge: lovenseBridge,
+    sendOscParam: (param, value) => oscListener?.sendParam?.(param, value),
+    onTick: (intensity) => {
+      dashboardState.lovense.lastIntensity = intensity;
+      dashboardState.lovense.lastSent = Date.now();
+      dashboardState.lovense.ogbDeviceCount = lovenseEngine.getOgbDeviceCount();
+      dashboardState.lovense.mode = systemSettings.lovense?.mode || 'ogb';
+    },
+  });
+
+  dashboardState.lovense.enabled = !!systemSettings.lovense?.enabled;
+  dashboardState.lovense.mode = systemSettings.lovense?.mode || 'ogb';
+  if (systemSettings.lovense?.enabled) {
+    lovenseBridge.enable();
+    lovenseLoop.restart();
+  }
+
+  const vrcConfigCheck = createVrcConfigCheck((st) => {
+    Object.assign(dashboardState.vrcConfig, st);
+  });
+  vrcConfigCheck.start(5000);
+
+  onSettingsUpdate((next, prev) => {
+    const wasEnabled = !!prev?.lovense?.enabled;
+    const isEnabled = !!next?.lovense?.enabled;
+    const prevUrl = prev?.lovense?.buttplug?.url || '';
+    const nextUrl = next?.lovense?.buttplug?.url || '';
+    const tickChanged = (prev?.lovense?.mapping?.tickHz ?? 15) !== (next?.lovense?.mapping?.tickHz ?? 15);
+    const modeChanged = (prev?.lovense?.mode || 'ogb') !== (next?.lovense?.mode || 'ogb');
+    dashboardState.lovense.enabled = isEnabled;
+    dashboardState.lovense.mode = next?.lovense?.mode || 'ogb';
+    if (!wasEnabled && isEnabled) {
+      lovenseBridge.enable();
+      lovenseLoop.restart();
+    } else if (wasEnabled && !isEnabled) {
+      lovenseLoop.stop();
+      lovenseEngine.reset();
+      lovenseBridge.disconnectSoft().catch(() => {});
+    } else if (isEnabled && prevUrl !== nextUrl) {
+      lovenseBridge.disconnectSoft().then(() => lovenseBridge.enable()).catch(() => {});
+    } else if (isEnabled && (tickChanged || modeChanged)) {
+      lovenseEngine.reset();
+      lovenseLoop.restart();
+    }
+    const prevOscQ = !!prev?.osc?.useOscQuery;
+    const nextOscQ = next?.osc?.useOscQuery !== false;
+    if (prevOscQ !== nextOscQ) vrchatOscquery.restart();
+  });
+
+  oscListener = createOSCListener(
     config,
     (msg) => {
       dashboardState.vrchat.connected = true;
@@ -137,6 +254,10 @@ async function main() {
       if (!v || /^avtr_/i.test(v)) dashboardState.avatar.oscType = 'Avatar Parameters';
       dashboardState.stats.messagesReceived++;
       dashboardState.lastUpdate = Date.now();
+      markOscLive(msg.timestamp);
+      if (vrchatOscquery.isEnabled() && !dashboardState.oscQuery.hasBulk && !dashboardState.oscQuery.waitingForBulk) {
+        void vrchatOscquery.fetchBulk();
+      }
       const p = dashboardState.lastOscParams;
       if (!isFaceTrackingParam(msg.paramName)) {
         p[msg.paramName] = msg.value;
@@ -145,6 +266,12 @@ async function main() {
       if (pKeys.length > 50) {
         for (let i = 0; i < pKeys.length - 30; i++) delete p[pKeys[i]];
       }
+
+      if (systemSettings.lovense?.enabled) {
+        lovenseEngine.ingest(msg.paramName, msg.value, msg.timestamp);
+      }
+
+      if (msg.ready === false) return;
 
       const snapshot = stateAnalyzer.update(msg);
       const { intensity, emit, touchType } = intensityEngine.process(snapshot);
@@ -159,21 +286,27 @@ async function main() {
         const vel = Math.max(snapshot.velocity ?? 0, snapshot.peakVelocity ?? 0);
 
         if (activeParams.length > 0) {
-          const motorValues = combineMotorValues(activeParams, parseZoneAndMotor, intensity, clusterSize);
+          const parsedTouches = parseActiveParams(activeParams);
+          const motorValues = combineParsedMotorValues(parsedTouches, intensity, getClusterSize());
           const hasAny = motorValues.some((v) => v > 0);
           if (hasAny) {
             const logEntries = [];
-            const byZone = {};
-            for (const { param, value } of activeParams) {
-              const { zone: parsedZone, motorIndex, rawMotorIndex } = parseZoneAndMotor(param);
+            const byZone = new Map();
+            for (const { param, value, zone: parsedZone, motorIndex, rawMotorIndex } of parsedTouches) {
               const zone = parsedZone === 'Front' ? 'Chest' : parsedZone;
               logEntries.push({ zone, param, motorIndex: rawMotorIndex ?? motorIndex, timestamp: now, intensity: value * intensity, velocity: vel });
-              if (!byZone[zone]) byZone[zone] = new Set();
-              if (rawMotorIndex != null) byZone[zone].add(rawMotorIndex);
+              if (rawMotorIndex != null) {
+                let motors = byZone.get(zone);
+                if (!motors) {
+                  motors = new Set();
+                  byZone.set(zone, motors);
+                }
+                motors.add(rawMotorIndex);
+              }
             }
             dashboardState.touchLog.unshift(...logEntries);
             if (dashboardState.touchLog.length > 50) dashboardState.touchLog.splice(50);
-            const summary = Object.entries(byZone)
+            const summary = [...byZone.entries()]
               .map(([z, motors]) => {
                 const arr = [...motors].sort((a, b) => a - b);
                 return arr.length ? `${z}#${arr.join(',')}` : z;
@@ -218,7 +351,11 @@ async function main() {
       dashboardState.avatar.id = avatar.avatarId;
       dashboardState.avatar.oscType = 'Avatar Parameters';
       dashboardState.vrchat.connected = true;
-    }
+      dashboardState.osc.avatarChangedAt = avatar.timestamp || Date.now();
+      lovenseEngine.clearOnAvatarChange();
+      dashboardState.lastOscParams = {};
+    },
+    { oscquery: vrchatOscquery }
   );
 
   dashboardState.osc.listening = true;
@@ -235,10 +372,15 @@ async function main() {
       }
     };
     setTimeout(forceExit, 3000);
-    oscListener.close(() => {
-      stop(() => {
-        done = true;
-        process.exit(0);
+    lovenseLoop.stop();
+    vrchatOscquery.stop();
+    if (oscStaleTimer) clearTimeout(oscStaleTimer);
+    Promise.resolve(lovenseBridge.close()).catch(() => {}).finally(() => {
+      oscListener.close(() => {
+        stop(() => {
+          done = true;
+          process.exit(0);
+        });
       });
     });
   };

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VRChatOSC-bhaptics-js v1.0</title>
+  <title>VRChatOSC-bhaptics-js v2.0</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@400;600&display=swap" rel="stylesheet">
@@ -64,11 +64,23 @@
     .meter-fill { height: 100%; background: linear-gradient(90deg, var(--accent), #a371f7); border-radius: 2px; transition: width 0.15s; }
     .stats { display: flex; gap: 1rem; font-size: 0.8rem; color: var(--muted); }
     .stat strong { color: var(--text); }
-    .live { color: var(--success); font-size: 0.65rem; }
+    .stat-badge-live { color: var(--success); font-size: 0.65rem; }
+    .stat-badge-idle { color: var(--muted); font-size: 0.65rem; }
+    .lovense-row { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; padding: 0.4rem 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+    .lovense-row:last-child { border-bottom: none; }
+    .lovense-toggle-btn { padding: 0.35rem 0.85rem; font-family: inherit; font-size: 0.78rem; font-weight: 600; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); cursor: pointer; }
+    .lovense-toggle-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .lovense-toggle-btn.on { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+    .lovense-status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 0.5rem; vertical-align: middle; background: var(--border); }
+    .lovense-status-dot.connected { background: var(--success); box-shadow: 0 0 6px var(--success); }
+    .lovense-status-dot.connecting { background: var(--warning); }
+    .lovense-status-dot.error { background: var(--danger); }
+    .lovense-devices { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--muted); }
     .vest-debug { display: flex; gap: 1.5rem; margin: 0.5rem 0; }
     .vest-view { text-align: center; }
     .vest-label { font-size: 0.65rem; color: var(--muted); margin-bottom: 0.25rem; }
     .vest-debug circle { transition: fill 0.15s, filter 0.15s; }
+    .vest-debug circle { cursor: pointer; }
     .vest-debug circle.active { fill: var(--accent); filter: drop-shadow(0 0 4px var(--accent)); }
     .vest-debug circle.fade { fill: var(--accent); opacity: 0.4; }
     .lang-toggle { display: flex; gap: 0.25rem; margin-left: auto; }
@@ -80,13 +92,42 @@
     .inline-toggles { display:flex; flex-wrap:wrap; gap:0.75rem; align-items:center; font-size:0.75rem; color:var(--muted); margin-top:0.5rem; }
     .inline-toggles label { display:flex; align-items:center; gap:0.3rem; cursor:pointer; }
     .inline-toggles input { accent-color: var(--accent); }
+    .tabs { display: flex; gap: 0.5rem; margin: -0.5rem 0 1rem; }
+    .tab-btn { flex: 1; padding: 0.6rem 0.8rem; font-family: inherit; font-size: 0.85rem; font-weight: 600; color: var(--muted); background: var(--surface); border: 1px solid var(--border); border-radius: 10px; cursor: pointer; }
+    .tab-btn:hover { color: var(--text); border-color: var(--accent); }
+    .tab-btn.active { color: var(--bg); background: var(--accent); border-color: var(--accent); }
+    .tab-page.hidden { display: none; }
+    .hidden { display: none !important; }
+    .settings-note { color: var(--muted); font-size: 0.78rem; line-height: 1.45; margin-bottom: 0.9rem; }
+    .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem 0.85rem; align-items: center; }
+    .settings-grid label { color: var(--muted); font-size: 0.75rem; }
+    .settings-grid input[type="number"], .settings-grid input[type="text"], .settings-grid input[type="password"], .settings-grid textarea { width: 100%; padding: 0.45rem 0.55rem; color: var(--text); background: var(--bg); border: 1px solid var(--border); border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; }
+    .settings-grid textarea { min-height: 64px; resize: vertical; }
+    .settings-grid input[type="checkbox"] { width: auto; accent-color: var(--accent); }
+    .settings-full { grid-column: 1 / -1; }
+    .settings-section { grid-column: 1 / -1; margin-top: 0.4rem; color: var(--accent); font-size: 0.7rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
+    .settings-check { display: flex; align-items: center; gap: 0.4rem; grid-column: 1 / -1; cursor: pointer; }
+    .settings-actions { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem; }
+    .settings-status { color: var(--muted); font-size: 0.8rem; }
+    .setup-list { display: grid; gap: 0.45rem; }
+    .setup-step { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; font-size: 0.85rem; padding: 0.45rem 0.55rem; border: 1px solid var(--border); border-radius: 9px; }
+    .setup-step.ok { border-color: rgba(63,185,80,0.45); background: rgba(63,185,80,0.08); }
+    .setup-step.warn { border-color: rgba(210,153,34,0.45); background: rgba(210,153,34,0.08); }
+    .setup-badge { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: var(--muted); white-space: nowrap; }
+    .setup-actions { display: flex; align-items: center; gap: 0.65rem; margin-top: 0.75rem; flex-wrap: wrap; }
+    .setup-actions .btn { margin-top: 0; }
+    .preset-row { display: flex; gap: 0.45rem; flex-wrap: wrap; margin: 0.6rem 0 0.9rem; }
+    .preset-btn { padding: 0.4rem 0.65rem; font-family: inherit; font-size: 0.78rem; font-weight: 600; color: var(--text); background: var(--bg); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; }
+    .preset-btn:hover { color: var(--accent); border-color: var(--accent); }
+    .warn-note { margin: 0.6rem 0 0.9rem; padding: 0.65rem 0.75rem; border: 1px solid rgba(210,153,34,0.45); border-radius: 10px; color: var(--warning); background: rgba(210,153,34,0.08); font-size: 0.78rem; line-height: 1.4; }
+    .vest-debug text { fill: var(--muted); font-family: 'JetBrains Mono', monospace; font-size: 9px; pointer-events: none; }
   </style>
   <script type="module" src="/haptics-client.js"></script>
 </head>
 <body>
   <div class="container">
     <h1 style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem">
-      <span>VRChatOSC-bhaptics-js <span style="font-size:0.7em;color:var(--muted);font-weight:400">v1.0</span></span>
+      <span>VRChatOSC-bhaptics-js <span style="font-size:0.7em;color:var(--muted);font-weight:400">v2.0</span></span>
       <span class="lang-toggle">
         <button id="lang-ru" data-lang="ru">RU</button>
         <button id="lang-ua" data-lang="ua">UA</button>
@@ -94,11 +135,32 @@
       </span>
     </h1>
 
+    <div class="tabs">
+      <button class="tab-btn active" id="tab-dashboard" data-tab="dashboard" data-i18n="tabDashboard">Dashboard</button>
+      <button class="tab-btn" id="tab-settings" data-tab="settings" data-i18n="tabSettings">Settings</button>
+    </div>
+
+    <section class="tab-page" id="page-dashboard">
     <div class="hero" id="hero">
       <div class="hero-title" id="hero-title" data-i18n="heroChecking">—</div>
       <div class="hero-sub" id="hero-sub">—</div>
       <button class="btn" id="btn-test" disabled data-i18n="btnTestHaptic">—</button>
       <ul class="hero-steps" id="hero-steps" style="display:none"></ul>
+    </div>
+
+    <div class="card card-compact" id="setup-card">
+      <h2 data-i18n="setupWizard">—</h2>
+      <div class="setup-list">
+        <div class="setup-step warn" id="setup-bhaptics"><span data-i18n="setupBhaptics">—</span><span class="setup-badge">—</span></div>
+        <div class="setup-step warn" id="setup-osc"><span data-i18n="setupOsc">—</span><span class="setup-badge">—</span></div>
+        <div class="setup-step warn" id="setup-vrchat"><span data-i18n="setupVrchat">—</span><span class="setup-badge">—</span></div>
+        <div class="setup-step warn" id="setup-vrc-config"><span data-i18n="setupVrcConfig">—</span><span class="setup-badge">—</span></div>
+        <div class="setup-step warn" id="setup-test"><span data-i18n="setupTest">—</span><span class="setup-badge">—</span></div>
+      </div>
+      <div class="setup-actions">
+        <button class="btn" id="btn-complete-onboarding" type="button" data-i18n="completeOnboarding">—</button>
+        <span class="settings-status" id="onboarding-status"></span>
+      </div>
     </div>
 
     <div class="card card-compact">
@@ -118,8 +180,38 @@
         <span class="status-value" id="device-info-label">—</span>
       </div>
       <div class="status-row">
+        <span class="status-label" data-i18n="deviceFirmware">—</span>
+        <span class="status-value" id="device-firmware">—</span>
+      </div>
+      <div class="status-row">
         <span class="status-label" data-i18n="battery">—</span>
         <span class="status-value" id="device-battery">—</span>
+      </div>
+    </div>
+
+    <div class="card card-compact" id="lovense-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;flex-wrap:wrap">
+        <h2 style="margin-bottom:0" data-i18n="lovenseTitle">—</h2>
+        <button type="button" class="lovense-toggle-btn" id="btn-lovense-toggle" data-i18n="lovenseToggleOff">—</button>
+      </div>
+      <div class="lovense-row">
+        <span><span class="lovense-status-dot" id="lovense-status-dot"></span><span data-i18n="lovenseStatus">—</span></span>
+        <span class="status-value" id="lovense-status-text">—</span>
+      </div>
+      <div class="lovense-row">
+        <span data-i18n="lovenseUrl">—</span>
+        <span class="status-value" id="lovense-url">—</span>
+      </div>
+      <div class="lovense-row">
+        <span data-i18n="lovenseDevices">—</span>
+        <span class="lovense-devices" id="lovense-devices">—</span>
+      </div>
+      <div class="lovense-row">
+        <span data-i18n="lovenseLevel">—</span>
+        <div style="flex:1;margin:0 0.5rem">
+          <div class="meter-bar"><div class="meter-fill" id="lovense-level-bar" style="width:0%"></div></div>
+        </div>
+        <span class="status-value" id="lovense-level-value">0%</span>
       </div>
     </div>
 
@@ -197,15 +289,155 @@
         <div class="stats" style="margin-top:0.75rem">
           <span class="stat"><span data-i18n="statOscMsgs">—</span> <strong id="stat-osc">0</strong></span>
           <span class="stat"><span data-i18n="statHapticsSent">—</span> <strong id="stat-haptics">0</strong></span>
-          <span class="stat live">● live</span>
+          <span class="stat stat-badge-idle" id="stat-live">● —</span>
         </div>
         <h2 style="margin-top:1rem" id="osc-debug-title">OSC Debug</h2>
         <div id="osc-debug" style="font-family:JetBrains Mono;font-size:0.65rem;max-height:80px;overflow-y:auto"></div>
       </div>
     </div>
+    </section>
+
+    <section class="tab-page hidden" id="page-settings">
+      <div class="card">
+        <h2 data-i18n="appSettings">—</h2>
+        <p class="settings-note" data-i18n="settingsNote">—</p>
+        <form id="intensity-settings-form" autocomplete="off">
+          <div class="settings-grid">
+            <div class="settings-section" data-i18n="settingsCore">—</div>
+            <label for="set-ui-port" data-i18n="setUiPort">—</label>
+            <input type="number" step="1" id="set-ui-port">
+            <label for="set-osc-port" data-i18n="setOscPort">—</label>
+            <input type="number" step="1" id="set-osc-port">
+            <label for="set-osc-host" data-i18n="setOscHost">—</label>
+            <input type="text" id="set-osc-host">
+            <label class="settings-check"><input type="checkbox" id="set-osc-auto-free"> <span data-i18n="setOscAutoFree">—</span></label>
+            <label class="settings-check"><input type="checkbox" id="set-osc-use-oscquery" checked> <span data-i18n="setOscUseOscQuery">—</span></label>
+            <label class="settings-check"><input type="checkbox" id="set-osc-query-require-bulk" checked> <span data-i18n="setOscQueryRequireBulk">—</span></label>
+            <label class="settings-check"><input type="checkbox" id="set-debug"> <span data-i18n="setDebug">—</span></label>
+            <label class="settings-check"><input type="checkbox" id="set-onboarding-completed"> <span data-i18n="setOnboardingCompleted">—</span></label>
+
+            <div class="settings-section" data-i18n="settingsBhaptics">—</div>
+            <div class="settings-full warn-note" data-i18n="apiKeyWarning">—</div>
+            <label for="set-bh-app-id" data-i18n="setBhAppId">—</label>
+            <input type="text" id="set-bh-app-id">
+            <label for="set-bh-api-key" data-i18n="setBhApiKey">—</label>
+            <input type="password" id="set-bh-api-key">
+            <label for="set-bh-remote" data-i18n="setBhRemote">—</label>
+            <input type="text" id="set-bh-remote">
+
+            <div class="settings-section" data-i18n="settingsIntensity">—</div>
+            <div class="settings-full">
+              <div class="preset-row">
+                <button class="preset-btn" type="button" data-preset="soft">Soft</button>
+                <button class="preset-btn" type="button" data-preset="balanced">Balanced</button>
+                <button class="preset-btn" type="button" data-preset="strong">Strong</button>
+                <button class="preset-btn" type="button" data-preset="realistic">Realistic</button>
+              </div>
+            </div>
+            <label for="set-impact-threshold" data-i18n="setImpactThreshold">—</label>
+            <input type="number" step="any" id="set-impact-threshold">
+            <label for="set-velocity-min" data-i18n="setVelocityMin">—</label>
+            <input type="number" step="any" id="set-velocity-min">
+            <label for="set-velocity-max" data-i18n="setVelocityMax">—</label>
+            <input type="number" step="any" id="set-velocity-max">
+            <label for="set-duration-min" data-i18n="setDurationMin">—</label>
+            <input type="number" step="any" id="set-duration-min">
+            <label for="set-duration-max" data-i18n="setDurationMax">—</label>
+            <input type="number" step="any" id="set-duration-max">
+            <label for="set-long-contact-ms" data-i18n="setLongContactMs">—</label>
+            <input type="number" step="1" id="set-long-contact-ms">
+            <label for="set-ema-alpha" data-i18n="setEmaAlpha">—</label>
+            <input type="number" step="any" id="set-ema-alpha">
+            <label for="set-cooldown-ms" data-i18n="setCooldownMs">—</label>
+            <input type="number" step="1" id="set-cooldown-ms">
+            <label for="set-sustain-cooldown-ms" data-i18n="setSustainCooldownMs">—</label>
+            <input type="number" step="1" id="set-sustain-cooldown-ms">
+            <label for="set-min-intensity" data-i18n="setMinIntensity">—</label>
+            <input type="number" step="any" id="set-min-intensity">
+            <label for="set-max-intensity" data-i18n="setMaxIntensity">—</label>
+            <input type="number" step="any" id="set-max-intensity">
+
+            <div class="settings-section" data-i18n="settingsHaptic">—</div>
+            <label for="set-h-event-key" data-i18n="setHEventKey">—</label>
+            <input type="text" id="set-h-event-key">
+            <label for="set-h-vest-motors" data-i18n="setHVestMotors">—</label>
+            <input type="number" step="1" id="set-h-vest-motors">
+            <label for="set-h-cluster" data-i18n="setHCluster">—</label>
+            <input type="number" step="1" id="set-h-cluster">
+            <label class="settings-check"><input type="checkbox" id="set-h-dot-mode"> <span data-i18n="setHDotMode">—</span></label>
+
+            <div class="settings-section" data-i18n="settingsContacts">—</div>
+            <label for="set-cp-value" data-i18n="setCpValue">—</label>
+            <input type="text" id="set-cp-value">
+            <label for="set-cp-speed" data-i18n="setCpSpeed">—</label>
+            <input type="text" id="set-cp-speed">
+            <label for="set-cp-zone" data-i18n="setCpZone">—</label>
+            <input type="text" id="set-cp-zone">
+            <label for="set-cp-timeout" data-i18n="setCpTimeout">—</label>
+            <input type="number" step="1" id="set-cp-timeout">
+            <label class="settings-check"><input type="checkbox" id="set-cp-accept-all"> <span data-i18n="setCpAcceptAll">—</span></label>
+            <label class="settings-check"><input type="checkbox" id="set-cp-exclude-ft"> <span data-i18n="setCpExcludeFt">—</span></label>
+            <label class="settings-full" for="set-cp-extra" data-i18n="setCpExtra">—</label>
+            <textarea class="settings-full" id="set-cp-extra"></textarea>
+            <label class="settings-full" for="set-cp-ignore" data-i18n="setCpIgnore">—</label>
+            <textarea class="settings-full" id="set-cp-ignore"></textarea>
+
+            <div class="settings-section" data-i18n="settingsLovense">—</div>
+            <div class="settings-full settings-note" data-i18n="lovenseSettingsNote">—</div>
+            <label class="settings-check"><input type="checkbox" id="set-lv-enabled"> <span data-i18n="setLvEnabled">—</span></label>
+            <label class="settings-check"><input type="checkbox" id="set-lv-trigger-vest"> <span data-i18n="setLvTriggerVest">—</span></label>
+            <label for="set-lv-mode" data-i18n="setLvMode">—</label>
+            <select id="set-lv-mode">
+              <option value="ogb">OGB (OscGoesBrrr)</option>
+              <option value="legacy">Legacy (include/ignore)</option>
+            </select>
+            <label class="settings-check"><input type="checkbox" id="set-lv-motion-based"> <span data-i18n="setLvMotionBased">—</span></label>
+            <label for="set-lv-tick-hz" data-i18n="setLvTickHz">—</label>
+            <input type="number" step="1" id="set-lv-tick-hz">
+            <label for="set-lv-max-level-param" data-i18n="setLvMaxLevelParam">—</label>
+            <input type="text" id="set-lv-max-level-param" placeholder="OGB_MaxLevel">
+            <div class="settings-section" data-i18n="settingsOgbSources">—</div>
+            <label class="settings-check"><input type="checkbox" id="set-lv-other-hands"> <span data-i18n="setLvOtherHands">—</span></label>
+            <label class="settings-check"><input type="checkbox" id="set-lv-other-plugs"> <span data-i18n="setLvOtherPlugs">—</span></label>
+            <label class="settings-check"><input type="checkbox" id="set-lv-other-sockets"> <span data-i18n="setLvOtherSockets">—</span></label>
+            <label class="settings-check"><input type="checkbox" id="set-lv-my-plugs"> <span data-i18n="setLvMyPlugs">—</span></label>
+            <label class="settings-check"><input type="checkbox" id="set-lv-own-hands"> <span data-i18n="setLvOwnHands">—</span></label>
+            <label class="settings-check"><input type="checkbox" id="set-lv-my-sockets"> <span data-i18n="setLvMySockets">—</span></label>
+            <label for="set-osc-send-host" data-i18n="setOscSendHost">—</label>
+            <input type="text" id="set-osc-send-host">
+            <label for="set-osc-send-port" data-i18n="setOscSendPort">—</label>
+            <input type="number" step="1" id="set-osc-send-port">
+            <label for="set-lv-url" data-i18n="setLvUrl">—</label>
+            <input type="text" id="set-lv-url">
+            <label for="set-lv-client-name" data-i18n="setLvClientName">—</label>
+            <input type="text" id="set-lv-client-name">
+            <label for="set-lv-min-intensity" data-i18n="setLvMinIntensity">—</label>
+            <input type="number" step="any" id="set-lv-min-intensity">
+            <label for="set-lv-max-intensity" data-i18n="setLvMaxIntensity">—</label>
+            <input type="number" step="any" id="set-lv-max-intensity">
+            <label for="set-lv-ema-alpha" data-i18n="setLvEmaAlpha">—</label>
+            <input type="number" step="any" id="set-lv-ema-alpha">
+            <label for="set-lv-contact-timeout" data-i18n="setLvContactTimeout">—</label>
+            <input type="number" step="1" id="set-lv-contact-timeout">
+            <label for="set-lv-min-interval" data-i18n="setLvMinInterval">—</label>
+            <input type="number" step="1" id="set-lv-min-interval">
+            <label for="set-lv-stop-after-idle" data-i18n="setLvStopAfterIdle">—</label>
+            <input type="number" step="1" id="set-lv-stop-after-idle">
+            <label class="settings-full" for="set-lv-include" data-i18n="setLvInclude">—</label>
+            <textarea class="settings-full" id="set-lv-include"></textarea>
+            <label class="settings-full" for="set-lv-ignore" data-i18n="setLvIgnore">—</label>
+            <textarea class="settings-full" id="set-lv-ignore"></textarea>
+          </div>
+          <div class="settings-actions">
+            <button type="submit" class="btn" id="btn-save-intensity" style="margin-top:0" data-i18n="saveSettings">—</button>
+            <span class="settings-status" id="settings-status"></span>
+          </div>
+        </form>
+      </div>
+    </section>
 
     <footer style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border);text-align:center;font-size:0.75rem;color:var(--muted)">
-      <span data-i18n="madeBy">Сделано</span>: <a href="https://1vs9.dev/" target="_blank" rel="noopener" style="color:var(--accent)">1vs9</a> · <a href="https://vrchat.com/home/user/usr_fe820c0f-02c9-48b0-9459-853198136a24" target="_blank" rel="noopener" style="color:var(--accent)">VRChat</a> · <a href="https://github.com/1vs9-standart" target="_blank" rel="noopener" style="color:var(--accent)">GitHub</a>
+      <span data-i18n="madeBy">Репозиторий</span>: <a href="https://github.com/1vs9-standart/VRChatOSC-bhaptics-js" target="_blank" rel="noopener" style="color:var(--accent)">GitHub</a>
     </footer>
   </div>
 
@@ -229,6 +461,7 @@
         oscType: 'Тип OSC',
         device: 'Устройство',
         deviceName: 'Название',
+        deviceFirmware: 'Прошивка',
         battery: 'Батарея',
         contacts: 'Контакты',
         eventType: 'Тип',
@@ -248,13 +481,128 @@
         whileSeated: 'Сидя',
         whileInStation: 'В станции',
         whileAfk: 'AFK',
-        madeBy: 'Сделано',
-        statOscMsgs: 'OSC сообщ.:',
+        madeBy: 'Репозиторий',
+        statOscMsgs: 'OSC сообщ./сек:',
         statHapticsSent: 'Хаптик отправлено:',
+        statBadgeLive: 'поток',
+        statBadgeIdle: 'нет OSC',
+        lovenseTitle: 'Lovense / Buttplug',
+        lovenseStatus: 'Статус',
+        lovenseUrl: 'Сервер',
+        lovenseDevices: 'Устройства',
+        lovenseLevel: 'Уровень',
+        lovenseToggleOn: 'Включено',
+        lovenseToggleOff: 'Выключено',
+        lovenseStateConnected: 'Подключено',
+        lovenseStateConnecting: 'Подключаемся',
+        lovenseStateDisconnected: 'Отключено',
+        lovenseStateError: 'Ошибка',
+        lovenseStateDisabled: 'Выключено',
+        lovenseNoDevices: '— нет устройств —',
+        settingsLovense: 'Lovense / Buttplug',
+        lovenseSettingsNote: 'Запустите Intiface Central и подключите устройство. Включение/отключение работает на лету, без перезапуска.',
+        setLvEnabled: 'Включить Lovense',
+        setLvTriggerVest: 'ERP-параметры также включают жилет',
+        setLvUrl: 'WebSocket URL',
+        setLvClientName: 'Имя клиента',
+        setLvMinIntensity: 'Интенсивность min (0..1)',
+        setLvMaxIntensity: 'Интенсивность max (0..1)',
+        setLvEmaAlpha: 'EMA сглаживание',
+        setLvContactTimeout: 'Таймаут контакта (мс)',
+        setLvMinInterval: 'Мин. интервал команд (мс)',
+        setLvStopAfterIdle: 'Стоп после простоя (мс)',
+        setLvInclude: 'Параметры (по одному на строку или маска *)',
+        setLvIgnore: 'Игнорировать (по одному на строку)',
         motorsLabel: 'моторов',
         notConnected: 'Не подключено',
         error: 'Ошибка',
         networkError: 'Ошибка сети',
+        tabDashboard: 'Дашборд',
+        tabSettings: 'Настройки',
+        appSettings: 'Настройки приложения',
+        intensitySettings: 'Настройки интенсивности',
+        settingsNote: 'Все значения сохраняются в системе через user-settings.json. Для портов и ключей bHaptics нужен перезапуск сервера/обновление страницы.',
+        settingsCore: 'Основное',
+        settingsBhaptics: 'bHaptics',
+        settingsIntensity: 'Интенсивность',
+        settingsHaptic: 'Хаптика',
+        settingsContacts: 'OSC контакты',
+        setUiPort: 'Порт UI',
+        setOscPort: 'Порт OSC',
+        setOscHost: 'OSC host',
+        setOscAutoFree: 'Автоосвобождение портов',
+        setOscUseOscQuery: 'OSCQuery (mDNS + bulk-снапшот VRChat)',
+        setOscQueryRequireBulk: 'Ждать bulk перед хаптикой',
+        oscQueryConnected: 'OSCQuery',
+        oscQueryBulk: 'bulk OK',
+        oscQueryWaiting: 'ожидание bulk',
+        oscQuerySearching: 'поиск VRChat',
+        setDebug: 'Лог [Touch] в консоль',
+        setBhAppId: 'App ID',
+        setBhApiKey: 'API key',
+        setBhRemote: 'Remote',
+        setImpactThreshold: 'Порог удара',
+        setVelocityMin: 'Скорость min',
+        setVelocityMax: 'Скорость max',
+        setDurationMin: 'Поглаживание min',
+        setDurationMax: 'Поглаживание max',
+        setLongContactMs: 'Длинный контакт (мс)',
+        setEmaAlpha: 'Сглаживание EMA',
+        setCooldownMs: 'Кулдаун удара (мс)',
+        setSustainCooldownMs: 'Кулдаун поглаж. (мс)',
+        setMinIntensity: 'Интенсивность min',
+        setMaxIntensity: 'Интенсивность max',
+        setHEventKey: 'bHaptics event key',
+        setHVestMotors: 'Моторов в жилете',
+        setHCluster: 'Кластер моторов',
+        setHDotMode: 'Dot mode',
+        setCpValue: 'Параметр силы',
+        setCpSpeed: 'Параметр скорости',
+        setCpZone: 'Параметр зоны',
+        setCpTimeout: 'Таймаут контакта (мс)',
+        setCpAcceptAll: 'Принимать все OSC touch/contact',
+        setCpExcludeFt: 'Исключить face tracking',
+        setCpExtra: 'Доп. параметры (по одному на строку)',
+        setCpIgnore: 'Игнорировать (по одному на строку)',
+        saveSettings: 'Сохранить',
+        settingsSaved: 'Сохранено',
+        settingsSaveError: 'Не удалось сохранить',
+        setOnboardingCompleted: 'Первый запуск завершён',
+        setupWizard: 'Первый запуск',
+        setupBhaptics: '1. Запусти bHaptics Player и подключи жилет',
+        setupOsc: '2. OSC сервер слушает порт',
+        setupVrchat: '3. Включи OSC в VRChat и зайди в аватар',
+        setupVrcConfig: '4. Настройки VRChat (реестр Windows)',
+        vrcConfigOk: 'OSC и взаимодействия OK',
+        vrcConfigUnknown: 'Проверка недоступна',
+        vrcConfigSkip: 'Только Windows + native-reg',
+        vrcOscOff: 'OSC выключен в VRChat',
+        vrcSelfInteractOff: 'Self-interact выключен',
+        vrcEveryoneOff: 'Взаимодействие: не «Everyone»',
+        setLvMode: 'Режим параметров',
+        setLvMotionBased: 'Motion-based (по скорости)',
+        setLvTickHz: 'Частота push (Гц)',
+        setLvMaxLevelParam: 'Параметр max-level в VRChat',
+        settingsOgbSources: 'OGB — источники ERP',
+        setLvOtherHands: 'Чужие руки',
+        setLvOtherPlugs: 'Чужие пенетраторы',
+        setLvOtherSockets: 'Чужие отверстия / frot',
+        setLvMyPlugs: 'Мои пенетраторы',
+        setLvOwnHands: 'Мои руки',
+        setLvMySockets: 'Мои отверстия',
+        setOscSendHost: 'OSC send host (VRChat)',
+        setOscSendPort: 'OSC send port',
+        lovenseOgbDevices: 'OGB устройств',
+        setupTest: '4. Нажми Test haptic',
+        ok: 'OK',
+        waiting: 'Ждём',
+        receiving: 'Получаем',
+        noMessages: 'Нет OSC',
+        testDone: 'Тест OK',
+        hapticsMissingCredentials: 'В Settings укажи bHaptics appId/apiKey.',
+        completeOnboarding: 'Готово, больше не показывать',
+        onboardingCompleted: 'Первый запуск сохранён',
+        apiKeyWarning: 'Не публикуй API key: он сохраняется локально в user-settings.json и не должен попадать в репозиторий или скриншоты.',
       },
       ua: {
         heroChecking: 'Перевірка...',
@@ -274,6 +622,7 @@
         oscType: 'Тип OSC',
         device: 'Пристрій',
         deviceName: 'Назва',
+        deviceFirmware: 'Прошивка',
         battery: 'Батарея',
         contacts: 'Контакти',
         eventType: 'Тип',
@@ -293,13 +642,128 @@
         whileSeated: 'Сидячи',
         whileInStation: 'У станції',
         whileAfk: 'AFK',
-        madeBy: 'Зроблено',
-        statOscMsgs: 'OSC повідом.:',
+        madeBy: 'Репозиторій',
+        statOscMsgs: 'OSC повідом./сек:',
         statHapticsSent: 'Хаптик відправлено:',
+        statBadgeLive: 'потік',
+        statBadgeIdle: 'немає OSC',
+        lovenseTitle: 'Lovense / Buttplug',
+        lovenseStatus: 'Статус',
+        lovenseUrl: 'Сервер',
+        lovenseDevices: 'Пристрої',
+        lovenseLevel: 'Рівень',
+        lovenseToggleOn: 'Увімкнено',
+        lovenseToggleOff: 'Вимкнено',
+        lovenseStateConnected: 'Підключено',
+        lovenseStateConnecting: 'Підключаємось',
+        lovenseStateDisconnected: 'Відключено',
+        lovenseStateError: 'Помилка',
+        lovenseStateDisabled: 'Вимкнено',
+        lovenseNoDevices: '— немає пристроїв —',
+        settingsLovense: 'Lovense / Buttplug',
+        lovenseSettingsNote: 'Запустіть Intiface Central та підключіть пристрій. Увімкнення/вимкнення працює без перезапуску.',
+        setLvEnabled: 'Увімкнути Lovense',
+        setLvTriggerVest: 'ERP-параметри також вмикають жилет',
+        setLvUrl: 'WebSocket URL',
+        setLvClientName: 'Назва клієнта',
+        setLvMinIntensity: 'Інтенсивність min (0..1)',
+        setLvMaxIntensity: 'Інтенсивність max (0..1)',
+        setLvEmaAlpha: 'EMA згладжування',
+        setLvContactTimeout: 'Таймаут контакту (мс)',
+        setLvMinInterval: 'Мін. інтервал команд (мс)',
+        setLvStopAfterIdle: 'Стоп після простою (мс)',
+        setLvInclude: 'Параметри (по одному на рядок або маска *)',
+        setLvIgnore: 'Ігнорувати (по одному на рядок)',
         motorsLabel: 'моторів',
         notConnected: 'Не підключено',
         error: 'Помилка',
         networkError: 'Помилка мережі',
+        tabDashboard: 'Дашборд',
+        tabSettings: 'Налаштування',
+        appSettings: 'Налаштування застосунку',
+        intensitySettings: 'Налаштування інтенсивності',
+        settingsNote: 'Усі значення зберігаються в системі через user-settings.json. Для портів і ключів bHaptics потрібен перезапуск сервера/оновлення сторінки.',
+        settingsCore: 'Основне',
+        settingsBhaptics: 'bHaptics',
+        settingsIntensity: 'Інтенсивність',
+        settingsHaptic: 'Хаптика',
+        settingsContacts: 'OSC контакти',
+        setUiPort: 'Порт UI',
+        setOscPort: 'Порт OSC',
+        setOscHost: 'OSC host',
+        setOscAutoFree: 'Автозвільнення портів',
+        setOscUseOscQuery: 'OSCQuery (mDNS + bulk-снапшот VRChat)',
+        setOscQueryRequireBulk: 'Чекати bulk перед хаптикою',
+        oscQueryConnected: 'OSCQuery',
+        oscQueryBulk: 'bulk OK',
+        oscQueryWaiting: 'очікування bulk',
+        oscQuerySearching: 'пошук VRChat',
+        setDebug: 'Лог [Touch] у консоль',
+        setBhAppId: 'App ID',
+        setBhApiKey: 'API key',
+        setBhRemote: 'Remote',
+        setImpactThreshold: 'Поріг удару',
+        setVelocityMin: 'Швидкість min',
+        setVelocityMax: 'Швидкість max',
+        setDurationMin: 'Погладжування min',
+        setDurationMax: 'Погладжування max',
+        setLongContactMs: 'Довгий контакт (мс)',
+        setEmaAlpha: 'Згладжування EMA',
+        setCooldownMs: 'Кулдаун удару (мс)',
+        setSustainCooldownMs: 'Кулдаун погладж. (мс)',
+        setMinIntensity: 'Інтенсивність min',
+        setMaxIntensity: 'Інтенсивність max',
+        setHEventKey: 'bHaptics event key',
+        setHVestMotors: 'Моторів у жилеті',
+        setHCluster: 'Кластер моторів',
+        setHDotMode: 'Dot mode',
+        setCpValue: 'Параметр сили',
+        setCpSpeed: 'Параметр швидкості',
+        setCpZone: 'Параметр зони',
+        setCpTimeout: 'Таймаут контакту (мс)',
+        setCpAcceptAll: 'Приймати всі OSC touch/contact',
+        setCpExcludeFt: 'Виключити face tracking',
+        setCpExtra: 'Дод. параметри (по одному на рядок)',
+        setCpIgnore: 'Ігнорувати (по одному на рядок)',
+        saveSettings: 'Зберегти',
+        settingsSaved: 'Збережено',
+        settingsSaveError: 'Не вдалося зберегти',
+        setOnboardingCompleted: 'Перший запуск завершено',
+        setupWizard: 'Перший запуск',
+        setupBhaptics: '1. Запусти bHaptics Player і підключи жилет',
+        setupOsc: '2. OSC сервер слухає порт',
+        setupVrchat: '3. Увімкни OSC у VRChat і зайди в аватар',
+        setupVrcConfig: '4. Налаштування VRChat (реєстр Windows)',
+        vrcConfigOk: 'OSC і взаємодії OK',
+        vrcConfigUnknown: 'Перевірка недоступна',
+        vrcConfigSkip: 'Лише Windows + native-reg',
+        vrcOscOff: 'OSC вимкнено в VRChat',
+        vrcSelfInteractOff: 'Self-interact вимкнено',
+        vrcEveryoneOff: 'Взаємодія: не «Everyone»',
+        setLvMode: 'Режим параметрів',
+        setLvMotionBased: 'Motion-based (за швидкістю)',
+        setLvTickHz: 'Частота push (Гц)',
+        setLvMaxLevelParam: 'Параметр max-level у VRChat',
+        settingsOgbSources: 'OGB — джерела ERP',
+        setLvOtherHands: 'Чужі руки',
+        setLvOtherPlugs: 'Чужі пенетратори',
+        setLvOtherSockets: 'Чужі отвори / frot',
+        setLvMyPlugs: 'Мої пенетратори',
+        setLvOwnHands: 'Мої руки',
+        setLvMySockets: 'Мої отвори',
+        setOscSendHost: 'OSC send host (VRChat)',
+        setOscSendPort: 'OSC send port',
+        lovenseOgbDevices: 'OGB пристроїв',
+        setupTest: '4. Натисни Test haptic',
+        ok: 'OK',
+        waiting: 'Чекаємо',
+        receiving: 'Отримуємо',
+        noMessages: 'Немає OSC',
+        testDone: 'Тест OK',
+        hapticsMissingCredentials: 'У Settings вкажи bHaptics appId/apiKey.',
+        completeOnboarding: 'Готово, більше не показувати',
+        onboardingCompleted: 'Перший запуск збережено',
+        apiKeyWarning: 'Не публікуй API key: він зберігається локально в user-settings.json і не має потрапляти в репозиторій або скриншоти.',
       },
       en: {
         heroChecking: 'Checking...',
@@ -319,6 +783,7 @@
         oscType: 'OSC type',
         device: 'Device',
         deviceName: 'Name',
+        deviceFirmware: 'Firmware',
         battery: 'Battery',
         contacts: 'Contacts',
         eventType: 'Type',
@@ -338,32 +803,216 @@
         whileSeated: 'Seated',
         whileInStation: 'In station',
         whileAfk: 'AFK',
-        madeBy: 'Made by',
-        statOscMsgs: 'OSC msgs:',
+        madeBy: 'Repository',
+        statOscMsgs: 'OSC msgs/sec:',
         statHapticsSent: 'Haptics sent:',
+        statBadgeLive: 'live',
+        statBadgeIdle: 'idle',
+        lovenseTitle: 'Lovense / Buttplug',
+        lovenseStatus: 'Status',
+        lovenseUrl: 'Server',
+        lovenseDevices: 'Devices',
+        lovenseLevel: 'Level',
+        lovenseToggleOn: 'Enabled',
+        lovenseToggleOff: 'Disabled',
+        lovenseStateConnected: 'Connected',
+        lovenseStateConnecting: 'Connecting',
+        lovenseStateDisconnected: 'Disconnected',
+        lovenseStateError: 'Error',
+        lovenseStateDisabled: 'Disabled',
+        lovenseNoDevices: '— no devices —',
+        settingsLovense: 'Lovense / Buttplug',
+        lovenseSettingsNote: 'Run Intiface Central and pair your toy. Enable/disable applies live without server restart.',
+        setLvEnabled: 'Enable Lovense',
+        setLvTriggerVest: 'ERP params also drive the vest',
+        setLvUrl: 'WebSocket URL',
+        setLvClientName: 'Client name',
+        setLvMinIntensity: 'Min intensity (0..1)',
+        setLvMaxIntensity: 'Max intensity (0..1)',
+        setLvEmaAlpha: 'EMA smoothing',
+        setLvContactTimeout: 'Contact timeout (ms)',
+        setLvMinInterval: 'Min command interval (ms)',
+        setLvStopAfterIdle: 'Stop after idle (ms)',
+        setLvInclude: 'Params (one per line or wildcard *)',
+        setLvIgnore: 'Ignore (one per line)',
         motorsLabel: 'motors',
         notConnected: 'Not connected',
         error: 'Error',
         networkError: 'Network error',
+        tabDashboard: 'Dashboard',
+        tabSettings: 'Settings',
+        appSettings: 'Application settings',
+        intensitySettings: 'Intensity settings',
+        settingsNote: 'All values are saved by the app in user-settings.json. Ports and bHaptics keys need a server restart/page refresh.',
+        settingsCore: 'Core',
+        settingsBhaptics: 'bHaptics',
+        settingsIntensity: 'Intensity',
+        settingsHaptic: 'Haptics',
+        settingsContacts: 'OSC contacts',
+        setUiPort: 'UI port',
+        setOscPort: 'OSC port',
+        setOscHost: 'OSC host',
+        setOscAutoFree: 'Auto-free ports',
+        setOscUseOscQuery: 'OSCQuery (mDNS + VRChat bulk snapshot)',
+        setOscQueryRequireBulk: 'Wait for bulk before haptics',
+        oscQueryConnected: 'OSCQuery',
+        oscQueryBulk: 'bulk OK',
+        oscQueryWaiting: 'waiting bulk',
+        oscQuerySearching: 'finding VRChat',
+        setDebug: '[Touch] logs to console',
+        setBhAppId: 'App ID',
+        setBhApiKey: 'API key',
+        setBhRemote: 'Remote',
+        setImpactThreshold: 'Impact threshold',
+        setVelocityMin: 'Velocity min',
+        setVelocityMax: 'Velocity max',
+        setDurationMin: 'Smooth min',
+        setDurationMax: 'Smooth max',
+        setLongContactMs: 'Long contact (ms)',
+        setEmaAlpha: 'EMA smoothing',
+        setCooldownMs: 'Impact cooldown (ms)',
+        setSustainCooldownMs: 'Smooth cooldown (ms)',
+        setMinIntensity: 'Intensity min',
+        setMaxIntensity: 'Intensity max',
+        setHEventKey: 'bHaptics event key',
+        setHVestMotors: 'Vest motors',
+        setHCluster: 'Motor cluster',
+        setHDotMode: 'Dot mode',
+        setCpValue: 'Strength parameter',
+        setCpSpeed: 'Speed parameter',
+        setCpZone: 'Zone parameter',
+        setCpTimeout: 'Contact timeout (ms)',
+        setCpAcceptAll: 'Accept all OSC touch/contact',
+        setCpExcludeFt: 'Exclude face tracking',
+        setCpExtra: 'Extra params (one per line)',
+        setCpIgnore: 'Ignore params (one per line)',
+        saveSettings: 'Save',
+        settingsSaved: 'Saved',
+        settingsSaveError: 'Save failed',
+        setOnboardingCompleted: 'First run completed',
+        setupWizard: 'First run',
+        setupBhaptics: '1. Start bHaptics Player and connect the vest',
+        setupOsc: '2. OSC server is listening',
+        setupVrchat: '3. Enable OSC in VRChat and load your avatar',
+        setupVrcConfig: '4. VRChat settings (Windows registry)',
+        vrcConfigOk: 'OSC & interactions OK',
+        vrcConfigUnknown: 'Check unavailable',
+        vrcConfigSkip: 'Windows + native-reg only',
+        vrcOscOff: 'OSC disabled in VRChat',
+        vrcSelfInteractOff: 'Self-interact disabled',
+        vrcEveryoneOff: 'Interaction not set to Everyone',
+        setLvMode: 'Parameter mode',
+        setLvMotionBased: 'Motion-based (velocity)',
+        setLvTickHz: 'Push rate (Hz)',
+        setLvMaxLevelParam: 'Max-level avatar parameter',
+        settingsOgbSources: 'OGB — ERP sources',
+        setLvOtherHands: 'Other hands',
+        setLvOtherPlugs: 'Other penetrators',
+        setLvOtherSockets: 'Other sockets / frot',
+        setLvMyPlugs: 'My penetrators',
+        setLvOwnHands: 'Own hands',
+        setLvMySockets: 'My sockets',
+        setOscSendHost: 'OSC send host (VRChat)',
+        setOscSendPort: 'OSC send port',
+        lovenseOgbDevices: 'OGB devices',
+        setupTest: '4. Press Test haptic',
+        ok: 'OK',
+        waiting: 'Waiting',
+        receiving: 'Receiving',
+        noMessages: 'No OSC',
+        testDone: 'Test OK',
+        hapticsMissingCredentials: 'Set bHaptics appId/apiKey in Settings.',
+        completeOnboarding: 'Done, do not show again',
+        onboardingCompleted: 'First run saved',
+        apiKeyWarning: 'Do not publish your API key: it is stored locally in user-settings.json and should not be committed or shown in screenshots.',
       },
     };
 
     let lang = localStorage.getItem('tact-lang') || 'ru';
     let showTouchLog = localStorage.getItem('tact-show-touch-log') !== '0';
     let showOscDebug = localStorage.getItem('tact-show-osc-debug') !== '0';
+    let currentTab = localStorage.getItem('tact-tab') || 'dashboard';
+    let testHapticOk = false;
+    let localMotorPreview = null;
+    let lastOscRateSample = null;
+    let systemSettingsCache = null;
+    const domCache = new Map();
+    const vestMotorRefs = { 'vest-front': [], 'vest-back': [], last: {} };
+    let lastTouchLogKey = '';
+    let lastOscDebugKey = '';
+    let lastActiveZonesKey = '';
+    let lastHeroKey = '';
+    let lastLovenseKey = '';
+    const checkboxInputMaps = {
+      'zones-checkboxes': new Map(),
+      'while-checkboxes': new Map(),
+    };
+    let zoneLabelRefs = null;
+    let cachedI18nEls = null;
+    let tabBtnsCached = null;
+
+    function el(id) {
+      if (!domCache.has(id)) domCache.set(id, document.getElementById(id));
+      return domCache.get(id);
+    }
+
+    function setText(node, value) {
+      if (node && node.textContent !== String(value)) node.textContent = String(value);
+    }
+
+    function setClassName(node, value) {
+      if (node && node.className !== value) node.className = value;
+    }
+
+    function setWidth(node, value) {
+      if (node && node.style.width !== value) node.style.width = value;
+    }
+
+    function setHtml(node, value) {
+      if (node && node.innerHTML !== value) node.innerHTML = value;
+    }
 
     function t(key) {
       return LANG[lang]?.[key] ?? LANG.ru[key] ?? LANG.en[key] ?? key;
     }
 
+    function zoneFromParam(p) {
+      const lp = (p || '').toLowerCase();
+      const frontMatch = lp.match(/vest_front[_-]?(\d+)|vestfront[_-]?(\d+)/i);
+      const backMatch = lp.match(/vest_back[_-]?(\d+)|back[_-]?(\d+)/i);
+      if (frontMatch) {
+        const raw = parseInt(frontMatch[1] || frontMatch[2] || '0', 10);
+        const idx0 = Math.max(0, raw - 1); // 1-20 -> 0-19
+        const row = Math.floor(Math.min(15, idx0) / 4); // 4x4 grid
+        return row <= 1 ? 'chest' : 'stomach';
+      }
+      if (backMatch) {
+        const raw = parseInt(backMatch[1] || backMatch[2] || '0', 10);
+        const idx0 = Math.max(0, raw - 1);
+        const row = Math.floor(Math.min(15, idx0) / 4);
+        return row <= 1 ? 'upperBack' : 'lowerBack';
+      }
+      if (/stomach|belly/.test(lp)) return 'stomach';
+      if (/upperback/.test(lp)) return 'upperBack';
+      if (/lowerback/.test(lp)) return 'lowerBack';
+      if (/back|vest_back/.test(lp)) return 'upperBack';
+      if (/chest|front|vest_front/.test(lp)) return 'chest';
+      return 'chest';
+    }
+
     function applyLang() {
-      document.querySelectorAll('[data-i18n]').forEach((el) => {
-        const key = el.dataset.i18n;
-        if (key && t(key)) el.textContent = t(key);
-      });
-      document.querySelectorAll('.lang-toggle button').forEach((btn) => {
-        btn.classList.toggle('active', btn.dataset.lang === lang);
-      });
+      if (!cachedI18nEls) cachedI18nEls = document.querySelectorAll('[data-i18n]');
+      for (let i = 0; i < cachedI18nEls.length; i++) {
+        const node = cachedI18nEls[i];
+        const key = node.dataset.i18n;
+        if (key && t(key)) node.textContent = t(key);
+      }
+      const ru = el('lang-ru');
+      const ua = el('lang-ua');
+      const en = el('lang-en');
+      if (ru) ru.className = lang === 'ru' ? 'active' : '';
+      if (ua) ua.className = lang === 'ua' ? 'active' : '';
+      if (en) en.className = lang === 'en' ? 'active' : '';
       const ZONES = [
         { key: 'chest', label: t('zoneChest') },
         { key: 'stomach', label: t('zoneStomach') },
@@ -379,9 +1028,24 @@
       return { ZONES, WHILE };
     }
 
-    document.getElementById('lang-ru').addEventListener('click', () => { lang = 'ru'; localStorage.setItem('tact-lang', lang); const { ZONES: z, WHILE: w } = applyLang(); initCheckboxes(z, w); if (lastState) { updateHero(lastState); updateUI(lastState); } });
-    document.getElementById('lang-ua').addEventListener('click', () => { lang = 'ua'; localStorage.setItem('tact-lang', lang); const { ZONES: z, WHILE: w } = applyLang(); initCheckboxes(z, w); if (lastState) { updateHero(lastState); updateUI(lastState); } });
-    document.getElementById('lang-en').addEventListener('click', () => { lang = 'en'; localStorage.setItem('tact-lang', lang); const { ZONES: z, WHILE: w } = applyLang(); initCheckboxes(z, w); if (lastState) { updateHero(lastState); updateUI(lastState); } });
+    function setLanguage(nextLang) {
+      lang = nextLang;
+      localStorage.setItem('tact-lang', lang);
+      lastHeroKey = '';
+      lastTouchLogKey = '';
+      lastOscDebugKey = '';
+      lastLovenseKey = '';
+      const { ZONES: z, WHILE: w } = applyLang();
+      initCheckboxes(z, w);
+      if (lastState) {
+        updateHero(lastState);
+        updateUI(lastState);
+      }
+    }
+
+    el('lang-ru').addEventListener('click', () => setLanguage('ru'));
+    el('lang-ua').addEventListener('click', () => setLanguage('ua'));
+    el('lang-en').addEventListener('click', () => setLanguage('en'));
 
     let lastState = null;
     let ZONES = [];
@@ -390,20 +1054,359 @@
     function initCheckboxes(zones, whileOpts) {
       ZONES = zones;
       WHILE = whileOpts;
-      document.getElementById('zones-checkboxes').dataset.inited = '';
-      document.getElementById('while-checkboxes').dataset.inited = '';
+      const zc = el('zones-checkboxes');
+      const wc = el('while-checkboxes');
+      zc.dataset.inited = '';
+      wc.dataset.inited = '';
+      zc.replaceChildren();
+      wc.replaceChildren();
+      zoneLabelRefs = null;
+      checkboxInputMaps['zones-checkboxes'].clear();
+      checkboxInputMaps['while-checkboxes'].clear();
     }
 
     const { ZONES: zones0, WHILE: while0 } = applyLang();
     initCheckboxes(zones0, while0);
+    wireSettingsCheckboxDelegation();
+
+    function setTab(tab) {
+      currentTab = tab === 'settings' ? 'settings' : 'dashboard';
+      localStorage.setItem('tact-tab', currentTab);
+      if (!tabBtnsCached) tabBtnsCached = [el('tab-dashboard'), el('tab-settings')];
+      for (let i = 0; i < tabBtnsCached.length; i++) {
+        const btn = tabBtnsCached[i];
+        if (!btn) continue;
+        const on = btn.dataset.tab === currentTab;
+        btn.className = on ? 'tab-btn active' : 'tab-btn';
+      }
+      const dash = el('page-dashboard');
+      const sett = el('page-settings');
+      const dashHidden = currentTab !== 'dashboard';
+      const settHidden = currentTab !== 'settings';
+      if (dash && dash.classList.contains('hidden') !== dashHidden) dash.classList.toggle('hidden', dashHidden);
+      if (sett && sett.classList.contains('hidden') !== settHidden) sett.classList.toggle('hidden', settHidden);
+      if (currentTab === 'settings') fetchSystemSettings();
+    }
+
+    (function wireTabButtons() {
+      if (!tabBtnsCached) tabBtnsCached = [el('tab-dashboard'), el('tab-settings')];
+      for (let i = 0; i < tabBtnsCached.length; i++) {
+        const btn = tabBtnsCached[i];
+        if (btn) btn.addEventListener('click', () => setTab(btn.dataset.tab));
+      }
+    })();
+
+    function setInputValue(id, value) {
+      const input = el(id);
+      if (input && value != null && input.value !== String(value)) input.value = String(value);
+    }
+
+    function setChecked(id, value) {
+      const input = el(id);
+      if (input) input.checked = !!value;
+    }
+
+    function readNumber(id) {
+      const input = el(id);
+      if (!input || input.value === '') return undefined;
+      const n = Number(input.value);
+      return Number.isFinite(n) ? n : undefined;
+    }
+
+    function readText(id) {
+      return (el(id)?.value || '').trim();
+    }
+
+    function readLines(id) {
+      return readText(id).split(/[\r\n,]+/).map((x) => x.trim()).filter(Boolean);
+    }
+
+    function hydrateIntensitySettings(settings) {
+      systemSettingsCache = settings || systemSettingsCache;
+      const ui = settings?.ui || {};
+      const osc = settings?.osc || {};
+      const bh = settings?.bhaptics || {};
+      const i = settings?.intensity || {};
+      const h = settings?.haptic || {};
+      const cp = settings?.contactParams || {};
+      setInputValue('set-ui-port', ui.port);
+      setInputValue('set-osc-port', osc.port);
+      setInputValue('set-osc-host', osc.host);
+      setInputValue('set-osc-send-host', osc.sendHost);
+      setInputValue('set-osc-send-port', osc.sendPort);
+      setChecked('set-osc-auto-free', osc.autoFreePorts);
+      setChecked('set-osc-use-oscquery', osc.useOscQuery !== false);
+      setChecked('set-osc-query-require-bulk', osc.oscQueryRequireBulk !== false);
+      setChecked('set-debug', settings?.debug);
+      setChecked('set-onboarding-completed', settings?.onboarding?.completed);
+      setInputValue('set-bh-app-id', bh.appId);
+      setInputValue('set-bh-api-key', bh.apiKey);
+      setInputValue('set-bh-remote', bh.remote);
+      setInputValue('set-impact-threshold', i.impactThreshold);
+      setInputValue('set-velocity-min', i.velocityMin);
+      setInputValue('set-velocity-max', i.velocityMax);
+      setInputValue('set-duration-min', i.durationMin);
+      setInputValue('set-duration-max', i.durationMax);
+      setInputValue('set-long-contact-ms', i.longContactMs);
+      setInputValue('set-ema-alpha', i.emaAlpha);
+      setInputValue('set-cooldown-ms', i.cooldownMs);
+      setInputValue('set-sustain-cooldown-ms', i.sustainCooldownMs);
+      setInputValue('set-min-intensity', i.minIntensity);
+      setInputValue('set-max-intensity', i.maxIntensity);
+      setInputValue('set-h-event-key', h.eventKey);
+      setInputValue('set-h-vest-motors', h.vestMotorCount);
+      setInputValue('set-h-cluster', h.motorClusterSize);
+      setChecked('set-h-dot-mode', h.useDotMode);
+      setInputValue('set-cp-value', cp.value);
+      setInputValue('set-cp-speed', cp.speed);
+      setInputValue('set-cp-zone', cp.zone);
+      setInputValue('set-cp-timeout', cp.contactTimeoutMs);
+      setChecked('set-cp-accept-all', cp.acceptAll);
+      setChecked('set-cp-exclude-ft', cp.excludeFaceTracking);
+      setInputValue('set-cp-extra', Array.isArray(cp.extra) ? cp.extra.join('\n') : '');
+      setInputValue('set-cp-ignore', Array.isArray(cp.ignore) ? cp.ignore.join('\n') : '');
+      const lv = settings?.lovense || {};
+      const lvBp = lv.buttplug || {};
+      const lvParams = lv.params || {};
+      const lvMap = lv.mapping || {};
+      setChecked('set-lv-enabled', lv.enabled);
+      setChecked('set-lv-trigger-vest', lv.triggerVest);
+      setInputValue('set-lv-mode', lv.mode || 'ogb');
+      setChecked('set-lv-motion-based', lvMap.motionBased !== false);
+      setInputValue('set-lv-tick-hz', lvMap.tickHz ?? 15);
+      setInputValue('set-lv-max-level-param', lvMap.maxLevelParam || '');
+      const lvOgb = lv.ogb || {};
+      const lvSrc = lvOgb.sources || {};
+      setChecked('set-lv-other-hands', !!lvSrc.otherHands);
+      setChecked('set-lv-other-plugs', !!lvSrc.otherPlugs);
+      setChecked('set-lv-other-sockets', !!lvSrc.otherSockets);
+      setChecked('set-lv-my-plugs', lvSrc.myPlugs !== false);
+      setChecked('set-lv-own-hands', !!lvSrc.ownHands);
+      setChecked('set-lv-my-sockets', lvSrc.mySockets !== false);
+      setInputValue('set-lv-url', lvBp.url);
+      setInputValue('set-lv-client-name', lvBp.clientName);
+      setInputValue('set-lv-min-intensity', lvMap.minIntensity);
+      setInputValue('set-lv-max-intensity', lvMap.maxIntensity);
+      setInputValue('set-lv-ema-alpha', lvMap.emaAlpha);
+      setInputValue('set-lv-contact-timeout', lvMap.contactTimeoutMs);
+      setInputValue('set-lv-min-interval', lvMap.minIntervalMs);
+      setInputValue('set-lv-stop-after-idle', lvMap.stopAfterIdleMs);
+      setInputValue('set-lv-include', Array.isArray(lvParams.include) ? lvParams.include.join('\n') : '');
+      setInputValue('set-lv-ignore', Array.isArray(lvParams.ignore) ? lvParams.ignore.join('\n') : '');
+      applyOnboardingSettings(settings);
+    }
+
+    function applyOnboardingSettings(settings) {
+      const card = el('setup-card');
+      if (!card) return;
+      card.classList.toggle('hidden', !!settings?.onboarding?.completed);
+    }
+
+    const INTENSITY_PRESETS = {
+      soft: {
+        impactThreshold: 0.65, velocityMin: 0.3, velocityMax: 5, durationMin: 0.08, durationMax: 0.85,
+        longContactMs: 2200, emaAlpha: 0.28, cooldownMs: 45, sustainCooldownMs: 220, minIntensity: 0.08, maxIntensity: 1.15,
+      },
+      balanced: {
+        impactThreshold: 0.4, velocityMin: 0.2, velocityMax: 5, durationMin: 0.15, durationMax: 1.25,
+        longContactMs: 1500, emaAlpha: 0.4, cooldownMs: 30, sustainCooldownMs: 150, minIntensity: 0.15, maxIntensity: 2,
+      },
+      strong: {
+        impactThreshold: 0.32, velocityMin: 0.12, velocityMax: 4.2, durationMin: 0.22, durationMax: 1.55,
+        longContactMs: 1200, emaAlpha: 0.5, cooldownMs: 25, sustainCooldownMs: 120, minIntensity: 0.2, maxIntensity: 2,
+      },
+      realistic: {
+        impactThreshold: 0.55, velocityMin: 0.22, velocityMax: 5.5, durationMin: 0.1, durationMax: 1.35,
+        longContactMs: 1800, emaAlpha: 0.34, cooldownMs: 35, sustainCooldownMs: 170, minIntensity: 0.12, maxIntensity: 1.8,
+      },
+    };
+
+    document.querySelectorAll('[data-preset]').forEach((btn) => {
+      btn.addEventListener('click', () => hydrateIntensitySettings({ intensity: INTENSITY_PRESETS[btn.dataset.preset] }));
+    });
+
+    async function fetchSystemSettings() {
+      try {
+        const r = await fetch('/api/system-settings');
+        const settings = await r.json();
+        hydrateIntensitySettings(settings);
+        return settings;
+      } catch (_) {
+        return null;
+      }
+    }
+
+    async function saveOnboardingCompleted(completed) {
+      const status = el('onboarding-status');
+      if (status) status.textContent = '';
+      const r = await fetch('/api/system-settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ onboarding: { completed } }),
+      });
+      const j = await r.json();
+      if (!j.ok) throw new Error(j.error || t('settingsSaveError'));
+      hydrateIntensitySettings(j.settings);
+      return j.settings;
+    }
+
+    let lovenseToggleBusy = false;
+    let lastLovenseEnabledLocal = null;
+    el('btn-lovense-toggle')?.addEventListener('click', async () => {
+      if (lovenseToggleBusy) return;
+      lovenseToggleBusy = true;
+      const btn = el('btn-lovense-toggle');
+      const target = !btn.classList.contains('on');
+      try {
+        const r = await fetch('/api/system-settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ lovense: { enabled: target } }),
+        });
+        const j = await r.json();
+        if (!j.ok) throw new Error(j.error || t('settingsSaveError'));
+        hydrateIntensitySettings(j.settings);
+        lastLovenseEnabledLocal = !!j.settings?.lovense?.enabled;
+      } catch (_) {
+      } finally {
+        lovenseToggleBusy = false;
+      }
+    });
+
+    el('btn-complete-onboarding')?.addEventListener('click', async () => {
+      const status = el('onboarding-status');
+      try {
+        await saveOnboardingCompleted(true);
+        if (status) {
+          status.textContent = t('onboardingCompleted');
+          status.style.color = 'var(--success)';
+        }
+      } catch (err) {
+        if (status) {
+          status.textContent = err.message || t('settingsSaveError');
+          status.style.color = 'var(--danger)';
+        }
+      }
+    });
+
+    el('intensity-settings-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const status = el('settings-status');
+      status.textContent = '';
+      const payload = {
+        ui: {
+          port: readNumber('set-ui-port'),
+        },
+        osc: {
+          port: readNumber('set-osc-port'),
+          host: readText('set-osc-host'),
+          sendHost: readText('set-osc-send-host'),
+          sendPort: readNumber('set-osc-send-port'),
+          autoFreePorts: !!el('set-osc-auto-free')?.checked,
+          useOscQuery: !!el('set-osc-use-oscquery')?.checked,
+          oscQueryRequireBulk: !!el('set-osc-query-require-bulk')?.checked,
+        },
+        bhaptics: {
+          appId: readText('set-bh-app-id'),
+          apiKey: readText('set-bh-api-key'),
+          remote: readText('set-bh-remote'),
+        },
+        debug: !!el('set-debug')?.checked,
+        onboarding: {
+          completed: !!el('set-onboarding-completed')?.checked,
+        },
+        intensity: {
+          impactThreshold: readNumber('set-impact-threshold'),
+          velocityMin: readNumber('set-velocity-min'),
+          velocityMax: readNumber('set-velocity-max'),
+          durationMin: readNumber('set-duration-min'),
+          durationMax: readNumber('set-duration-max'),
+          longContactMs: readNumber('set-long-contact-ms'),
+          emaAlpha: readNumber('set-ema-alpha'),
+          cooldownMs: readNumber('set-cooldown-ms'),
+          sustainCooldownMs: readNumber('set-sustain-cooldown-ms'),
+          minIntensity: readNumber('set-min-intensity'),
+          maxIntensity: readNumber('set-max-intensity'),
+        },
+        haptic: {
+          eventKey: readText('set-h-event-key'),
+          useDotMode: !!el('set-h-dot-mode')?.checked,
+          vestMotorCount: readNumber('set-h-vest-motors'),
+          motorClusterSize: readNumber('set-h-cluster'),
+        },
+        contactParams: {
+          value: readText('set-cp-value'),
+          speed: readText('set-cp-speed'),
+          zone: readText('set-cp-zone'),
+          acceptAll: !!el('set-cp-accept-all')?.checked,
+          excludeFaceTracking: !!el('set-cp-exclude-ft')?.checked,
+          contactTimeoutMs: readNumber('set-cp-timeout'),
+          extra: readLines('set-cp-extra'),
+          ignore: readLines('set-cp-ignore'),
+        },
+        lovense: {
+          enabled: !!el('set-lv-enabled')?.checked,
+          triggerVest: !!el('set-lv-trigger-vest')?.checked,
+          mode: readText('set-lv-mode') || 'ogb',
+          buttplug: {
+            url: readText('set-lv-url'),
+            clientName: readText('set-lv-client-name'),
+          },
+          ogb: {
+            sources: {
+              ownHands: !!el('set-lv-own-hands')?.checked,
+              otherHands: !!el('set-lv-other-hands')?.checked,
+              myPlugs: !!el('set-lv-my-plugs')?.checked,
+              mySockets: !!el('set-lv-my-sockets')?.checked,
+              otherPlugs: !!el('set-lv-other-plugs')?.checked,
+              otherSockets: !!el('set-lv-other-sockets')?.checked,
+            },
+          },
+          params: {
+            include: readLines('set-lv-include'),
+            ignore: readLines('set-lv-ignore'),
+          },
+          mapping: {
+            minIntensity: readNumber('set-lv-min-intensity'),
+            maxIntensity: readNumber('set-lv-max-intensity'),
+            emaAlpha: readNumber('set-lv-ema-alpha'),
+            contactTimeoutMs: readNumber('set-lv-contact-timeout'),
+            minIntervalMs: readNumber('set-lv-min-interval'),
+            stopAfterIdleMs: readNumber('set-lv-stop-after-idle'),
+            tickHz: readNumber('set-lv-tick-hz'),
+            motionBased: !!el('set-lv-motion-based')?.checked,
+            maxLevelParam: readText('set-lv-max-level-param'),
+          },
+        },
+      };
+      try {
+        const r = await fetch('/api/system-settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const j = await r.json();
+        if (!j.ok) throw new Error(j.error || t('settingsSaveError'));
+        hydrateIntensitySettings(j.settings);
+        status.textContent = t('settingsSaved');
+        status.style.color = 'var(--success)';
+      } catch (err) {
+        status.textContent = err.message || t('settingsSaveError');
+        status.style.color = 'var(--danger)';
+      }
+      setTimeout(() => { status.textContent = ''; }, 2500);
+    });
+
+    setTab(currentTab);
+    fetchSystemSettings();
 
     function applyLogToggles() {
-      const tlTitle = document.getElementById('touch-log-title');
-      const tl = document.getElementById('touch-log');
-      const oscTitle = document.getElementById('osc-debug-title');
-      const osc = document.getElementById('osc-debug');
-      const tlCb = document.getElementById('toggle-touch-log-cb');
-      const oscCb = document.getElementById('toggle-osc-debug-cb');
+      const tlTitle = el('touch-log-title');
+      const tl = el('touch-log');
+      const oscTitle = el('osc-debug-title');
+      const osc = el('osc-debug');
+      const tlCb = el('toggle-touch-log-cb');
+      const oscCb = el('toggle-osc-debug-cb');
       if (tlCb) tlCb.checked = showTouchLog;
       if (oscCb) oscCb.checked = showOscDebug;
       if (tlTitle) tlTitle.style.display = showTouchLog ? '' : 'none';
@@ -413,8 +1416,8 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      const tlCb = document.getElementById('toggle-touch-log-cb');
-      const oscCb = document.getElementById('toggle-osc-debug-cb');
+      const tlCb = el('toggle-touch-log-cb');
+      const oscCb = el('toggle-osc-debug-cb');
       if (tlCb) {
         tlCb.addEventListener('change', () => {
           showTouchLog = !!tlCb.checked;
@@ -432,90 +1435,129 @@
       applyLogToggles();
     });
 
-    document.getElementById('toggle-advanced').addEventListener('click', () => {
-      const btn = document.getElementById('toggle-advanced');
-      const body = document.getElementById('advanced-body');
+    el('toggle-advanced').addEventListener('click', () => {
+      const btn = el('toggle-advanced');
+      const body = el('advanced-body');
       const collapsed = btn.dataset.collapsed === 'true';
       btn.dataset.collapsed = !collapsed;
       btn.classList.toggle('collapsed', !collapsed);
       body.classList.toggle('collapsed', !collapsed);
     });
 
-    document.getElementById('btn-test').addEventListener('click', async () => {
-      const btn = document.getElementById('btn-test');
+    el('btn-test').addEventListener('click', async () => {
+      const btn = el('btn-test');
       btn.disabled = true;
       try {
         const r = await fetch('/api/test-haptic', { method: 'POST' });
         const j = await r.json();
-        if (j.ok) btn.textContent = t('btnTestOk');
+        if (j.ok) {
+          testHapticOk = true;
+          btn.textContent = t('btnTestOk');
+          if (lastState) updateSetupWizard(lastState);
+        }
         else btn.textContent = j.error || t('error');
       } catch (e) { btn.textContent = t('networkError'); }
       setTimeout(() => {
         btn.textContent = t('btnTestHaptic');
-        btn.disabled = !document.getElementById('bhaptics-dot').classList.contains('ok');
+        btn.disabled = !el('bhaptics-dot').classList.contains('ok');
       }, 1500);
     });
 
-    function renderCheckboxes(containerId, items, stateObj, apiKey) {
-      const el = document.getElementById(containerId);
+    function wireSettingsCheckboxDelegation() {
+      [['zones-checkboxes', 'allowZones'], ['while-checkboxes', 'allowWhile']].forEach(([containerId, apiKey]) => {
+        el(containerId).addEventListener('change', (ev) => {
+          const target = ev.target;
+          if (!target || target.type !== 'checkbox' || !target.dataset.key) return;
+          const inputMap = checkboxInputMaps[containerId];
+          const obj = {};
+          inputMap.forEach((c, k) => { obj[k] = c.checked; });
+          fetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ [apiKey]: obj }) });
+        });
+      });
+    }
+
+    function renderCheckboxes(containerId, items, stateObj) {
+      const container = el(containerId);
       const it = items.length ? items : (containerId === 'zones-checkboxes' ? ZONES : WHILE);
-      if (!el.dataset.inited) {
-        el.dataset.inited = '1';
-        el.innerHTML = it.map(({ key, label }) => `<label class="zone-label" data-zone-key="${key}"><input type="checkbox" data-key="${key}" ${stateObj[key] ? 'checked' : ''}> ${label}</label>`).join('');
-        el.querySelectorAll('input').forEach((cb) => {
-          cb.addEventListener('change', () => {
-            const obj = {};
-            el.querySelectorAll('input').forEach((c) => { obj[c.dataset.key] = c.checked; });
-            fetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ [apiKey]: obj }) });
-          });
-        });
+      const inputMap = checkboxInputMaps[containerId];
+      if (!container.dataset.inited) {
+        container.dataset.inited = '1';
+        inputMap.clear();
+        container.replaceChildren();
+        const frag = document.createDocumentFragment();
+        for (let i = 0; i < it.length; i++) {
+          const { key, label } = it[i];
+          const lab = document.createElement('label');
+          lab.className = 'zone-label';
+          lab.dataset.zoneKey = key;
+          const cb = document.createElement('input');
+          cb.type = 'checkbox';
+          cb.dataset.key = key;
+          cb.checked = !!stateObj[key];
+          inputMap.set(key, cb);
+          lab.appendChild(cb);
+          lab.appendChild(document.createTextNode(' ' + label));
+          frag.appendChild(lab);
+        }
+        container.appendChild(frag);
+        if (containerId === 'zones-checkboxes') zoneLabelRefs = container.getElementsByClassName('zone-label');
       } else {
-        it.forEach(({ key }) => {
-          const cb = el.querySelector(`[data-key="${key}"]`);
-          if (cb) cb.checked = !!stateObj[key];
-        });
+        for (let i = 0; i < it.length; i++) {
+          const cb = inputMap.get(it[i].key);
+          if (cb) cb.checked = !!stateObj[it[i].key];
+        }
       }
     }
 
     function updateHero(s) {
       if (!s) return;
       lastState = s;
-      const hero = document.getElementById('hero');
-      const title = document.getElementById('hero-title');
-      const sub = document.getElementById('hero-sub');
-      const steps = document.getElementById('hero-steps');
-      const btn = document.getElementById('btn-test');
+      const hero = el('hero');
+      const title = el('hero-title');
+      const sub = el('hero-sub');
+      const steps = el('hero-steps');
+      const btn = el('btn-test');
       const oscOk = s.osc?.listening;
       const bhOk = s.bhaptics?.connected;
       const vrcOk = s.vrchat?.connected;
+      const heroKey = [
+        oscOk ? 1 : 0,
+        bhOk ? 1 : 0,
+        vrcOk ? 1 : 0,
+        s.avatar?.id || '',
+        s.stats?.messagesReceived ?? 0,
+      ].join('|');
+      if (heroKey === lastHeroKey) return;
+      lastHeroKey = heroKey;
 
-      hero.className = 'hero';
-      steps.style.display = 'none';
-      btn.textContent = t('btnTestHaptic');
-
+      let heroCls = 'hero';
+      let stepsDisplay = 'none';
       if (!oscOk) {
-        hero.classList.add('error');
-        title.textContent = t('heroError');
-        sub.textContent = 'npm start';
-        steps.innerHTML = (LANG[lang]?.heroErrorSteps || LANG.ru.heroErrorSteps).map((x) => `<li>${x}</li>`).join('');
-        steps.style.display = 'block';
+        heroCls += ' error';
+        stepsDisplay = 'block';
+        setText(title, t('heroError'));
+        setText(sub, 'npm start');
+        setHtml(steps, (LANG[lang]?.heroErrorSteps || LANG.ru.heroErrorSteps).map((x) => `<li>${x}</li>`).join(''));
       } else if (!bhOk) {
-        hero.classList.add('waiting');
-        title.textContent = t('heroWaiting');
-        sub.textContent = t('heroWaitingSteps')[0];
-        steps.innerHTML = (LANG[lang]?.heroWaitingSteps || LANG.ru.heroWaitingSteps).map((x) => `<li>${x}</li>`).join('');
-        steps.style.display = 'block';
+        heroCls += ' waiting';
+        stepsDisplay = 'block';
+        setText(title, t('heroWaiting'));
+        setText(sub, t('heroWaitingSteps')[0]);
+        setHtml(steps, (LANG[lang]?.heroWaitingSteps || LANG.ru.heroWaitingSteps).map((x) => `<li>${x}</li>`).join(''));
       } else if (!vrcOk) {
-        hero.classList.add('waiting');
-        title.textContent = t('heroReady');
-        sub.textContent = t('heroReadySub');
+        heroCls += ' waiting';
+        setText(title, t('heroReady'));
+        setText(sub, t('heroReadySub'));
         btn.disabled = false;
       } else {
-        hero.classList.add('ready');
-        title.textContent = t('heroOk');
-        sub.textContent = `Avatar: ${s.avatar?.id || '—'} • OSC: ${s.stats?.messagesReceived ?? 0}`;
+        heroCls += ' ready';
+        setText(title, t('heroOk'));
+        setText(sub, `Avatar: ${s.avatar?.id || '—'} • OSC: ${s.stats?.messagesReceived ?? 0}`);
         btn.disabled = false;
       }
+      setClassName(hero, heroCls);
+      if (steps.style.display !== stepsDisplay) steps.style.display = stepsDisplay;
+      setText(btn, t('btnTestHaptic'));
     }
 
     async function fetchState() {
@@ -528,8 +1570,11 @@
     }
 
     function renderVestMotors(svgId, activeIndices, fading) {
-      const svg = document.getElementById(svgId);
+      const svg = el(svgId);
       if (!svg) return;
+      const stateKey = `${activeIndices.join(',')}|${fading ? 1 : 0}`;
+      if (vestMotorRefs.last[svgId] === stateKey) return;
+      vestMotorRefs.last[svgId] = stateKey;
       const r = 8;
       const pad = 15;
       const step = 22;
@@ -546,90 +1591,199 @@
           c.setAttribute('r', r);
           c.setAttribute('fill', 'var(--border)');
           c.setAttribute('data-index', i);
+          c.addEventListener('click', () => {
+            const zone = svgId === 'vest-back' ? 'Back' : 'Front';
+            const globalIndex = zone === 'Back' ? i + 16 : i;
+            localMotorPreview = { indices: [globalIndex], timestamp: Date.now() };
+            renderVestMotors('vest-front', zone === 'Front' ? [i] : [], false);
+            renderVestMotors('vest-back', zone === 'Back' ? [i] : [], false);
+            fetch('/api/test-haptic', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ zone, motorIndex: i }),
+            })
+              .then((r) => r.json())
+              .then((j) => {
+                if (j.activation?.indices) {
+                  localMotorPreview = { indices: j.activation.indices, timestamp: Date.now() };
+                  renderMotorActivation(localMotorPreview);
+                }
+              })
+              .catch(() => {});
+          });
           svg.appendChild(c);
+          vestMotorRefs[svgId].push(c);
+          const txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          txt.setAttribute('x', cx);
+          txt.setAttribute('y', cy + 3);
+          txt.setAttribute('text-anchor', 'middle');
+          txt.textContent = i + 1;
+          svg.appendChild(txt);
         }
       }
-      svg.querySelectorAll('circle').forEach((c) => {
+      const activeSet = new Set(activeIndices);
+      vestMotorRefs[svgId].forEach((c) => {
         const idx = parseInt(c.dataset.index, 10);
-        const active = activeIndices.includes(idx);
-        c.classList.toggle('active', active && !fading);
-        c.classList.toggle('fade', active && fading);
+        const active = activeSet.has(idx);
+        const wantActive = active && !fading;
+        const wantFade = active && fading;
+        if (c.classList.contains('active') !== wantActive) c.classList.toggle('active', wantActive);
+        if (c.classList.contains('fade') !== wantFade) c.classList.toggle('fade', wantFade);
       });
+    }
+
+    function renderMotorActivation(act) {
+      const indices = act?.indices || [];
+      const actTs = act?.timestamp || 0;
+      const age = Date.now() - actTs;
+      const fading = age > 400 && age < 1500;
+      const visible = age < 1500;
+      renderVestMotors('vest-front', visible ? indices.filter((i) => i < 16) : [], fading);
+      renderVestMotors('vest-back', visible ? indices.filter((i) => i >= 16).map((i) => i - 16) : [], fading);
+    }
+
+    function getOscMessagesPerSecond(totalMessages) {
+      const now = Date.now();
+      const total = Number(totalMessages) || 0;
+      if (!lastOscRateSample) {
+        lastOscRateSample = { total, timestamp: now };
+        return 0;
+      }
+      const elapsedSec = Math.max(0.001, (now - lastOscRateSample.timestamp) / 1000);
+      const delta = Math.max(0, total - lastOscRateSample.total);
+      lastOscRateSample = { total, timestamp: now };
+      return delta / elapsedSec;
+    }
+
+    function setSetupState(id, ok, label) {
+      const node = el(id);
+      if (!node) return;
+      const nextCls = ok ? 'setup-step ok' : 'setup-step warn';
+      if (node.className !== nextCls) node.className = nextCls;
+      const badge = node.querySelector('.setup-badge');
+      if (badge) setText(badge, label);
+    }
+
+    function updateSetupWizard(s) {
+      const msgCount = s.stats?.messagesReceived ?? 0;
+      const oscAge = Date.now() - (s.lastUpdate || 0);
+      const receivingOsc = msgCount > 0 && oscAge < 5000;
+      const bhOk = !!s.bhaptics?.connected;
+      const bhStatus = s.bhaptics?.status || 'idle';
+      const bhError = s.bhaptics?.error || '';
+      setSetupState('setup-bhaptics', bhOk, bhOk ? t('ok') : (bhStatus === 'missingCredentials' ? t('hapticsMissingCredentials') : (bhError || t('waiting'))));
+      const oq = s.oscQuery || {};
+      let oscBadge = s.osc?.listening ? `:${s.osc.port}` : t('waiting');
+      if (oq.enabled !== false && s.osc?.listening) {
+        if (oq.status === 'connected') {
+          oscBadge += oq.hasBulk ? ` · ${t('oscQueryBulk')}` : (oq.waitingForBulk ? ` · ${t('oscQueryWaiting')}` : ` · ${t('oscQueryConnected')}`);
+        } else if (oq.status === 'searching' || oq.status === 'not_found') {
+          oscBadge += ` · ${t('oscQuerySearching')}`;
+        }
+      }
+      const oscSetupOk = !!s.osc?.listening && (oq.enabled === false || (oq.status === 'connected' && (!oq.enabled || oq.ready)));
+      setSetupState('setup-osc', oscSetupOk, oscBadge.trim());
+      setSetupState('setup-vrchat', receivingOsc && !s.osc?.stale, receivingOsc && !s.osc?.stale ? `${t('receiving')} (${msgCount})` : (s.osc?.stale ? t('statBadgeIdle') : t('noMessages')));
+      const vc = s.vrcConfig || {};
+      let vrcOk = true;
+      let vrcLabel = t('vrcConfigOk');
+      if (!vc.available) {
+        vrcOk = true;
+        vrcLabel = vc.error === 'native_reg_missing' ? t('vrcConfigSkip') : t('vrcConfigUnknown');
+      } else {
+        if (vc.oscEnabled === false) { vrcOk = false; vrcLabel = t('vrcOscOff'); }
+        else if (vc.everyoneInteractEnabled === false) { vrcOk = false; vrcLabel = t('vrcEveryoneOff'); }
+        else if (vc.selfInteractEnabled === false) { vrcOk = false; vrcLabel = t('vrcSelfInteractOff'); }
+      }
+      setSetupState('setup-vrc-config', vrcOk, vrcLabel);
+      setSetupState('setup-test', testHapticOk, testHapticOk ? t('testDone') : t('waiting'));
     }
 
     function updateUI(s) {
       const devInfo = s.deviceInfo || {};
-      const devLabel = document.getElementById('device-info-label');
+      const devLabel = el('device-info-label');
       if (devLabel) {
         const name = devInfo.deviceName || '—';
         const motors = devInfo.vestMotorCount ?? s.haptic?.vestMotorCount;
         const motorsLabel = t('motorsLabel');
         const notConnected = t('notConnected');
-        devLabel.textContent = motors ? `${name} (${motors} ${motorsLabel})` : (name || notConnected);
+        setText(devLabel, motors ? `${name} (${motors} ${motorsLabel})` : (name || notConnected));
       }
-      document.getElementById('osc-dot').className = 'status-dot ' + (s.osc?.listening ? 'ok' : 'err');
-      document.getElementById('osc-value').textContent = s.osc?.listening ? `:${s.osc.port}` : '—';
-      document.getElementById('bhaptics-dot').className = 'status-dot ' + (s.bhaptics?.connected ? 'ok' : 'warn');
-      document.getElementById('bhaptics-value').textContent = s.bhaptics?.connected ? 'Connected' : '—';
-      document.getElementById('vrchat-dot').className = 'status-dot ' + (s.vrchat?.connected ? 'ok' : 'warn');
-      document.getElementById('vrchat-value').textContent = s.vrchat?.connected ? 'Connected' : '—';
+      setClassName(el('osc-dot'), 'status-dot ' + (s.osc?.listening ? 'ok' : 'err'));
+      const oqUi = s.oscQuery || {};
+      let oscVal = s.osc?.listening ? `:${s.osc.port}` : '—';
+      if (oqUi.enabled !== false && s.osc?.listening && oqUi.status === 'connected') {
+        oscVal += oqUi.hasBulk ? ` · ${t('oscQueryBulk')}` : (oqUi.waitingForBulk ? ` · ${t('oscQueryWaiting')}` : ` · ${t('oscQueryConnected')}`);
+      }
+      setText(el('osc-value'), oscVal);
+      setClassName(el('bhaptics-dot'), 'status-dot ' + (s.bhaptics?.connected ? 'ok' : 'warn'));
+      const bhErr = s.bhaptics?.error || '';
+      setText(el('bhaptics-value'), s.bhaptics?.connected ? 'Connected' : (bhErr || s.bhaptics?.status || '—'));
+      setClassName(el('vrchat-dot'), 'status-dot ' + (s.vrchat?.connected ? 'ok' : 'warn'));
+      const oscAge = Date.now() - (s.lastUpdate || 0);
+      const receivingOsc = (s.stats?.messagesReceived ?? 0) > 0 && oscAge < 5000;
+      setText(el('vrchat-value'), receivingOsc ? `${t('receiving')} OSC` : (s.vrchat?.connected ? 'Connected' : t('noMessages')));
+      updateSetupWizard(s);
       const di = s.deviceInfo || {};
+      const fwEl = el('device-firmware');
+      if (fwEl) {
+        const fw = di.firmwareVersion;
+        setText(fwEl, fw != null && String(fw).trim() !== '' ? String(fw) : '—');
+      }
       const showBattery = di.battery != null;
-      document.getElementById('device-battery').textContent = showBattery ? (typeof di.battery === 'number' ? di.battery + '%' : String(di.battery)) : '—';
-      document.getElementById('avatar-osc-type').textContent = s.avatar?.oscType || '—';
-      document.getElementById('avatar-id').textContent = s.avatar?.id || '—';
+      setText(el('device-battery'), showBattery ? (typeof di.battery === 'number' ? di.battery + '%' : String(di.battery)) : '—');
+      setText(el('avatar-osc-type'), s.avatar?.oscType || '—');
+      setText(el('avatar-id'), s.avatar?.id || '—');
       const zones = s.allowZones || { chest: true, stomach: true, upperBack: true, lowerBack: true };
       const allowWhile = s.allowWhile || { grounded: true, seated: true, inStation: true, afk: false };
-      renderCheckboxes('zones-checkboxes', ZONES, zones, 'allowZones');
-      renderCheckboxes('while-checkboxes', WHILE, allowWhile, 'allowWhile');
-      function zoneFromParam(p) {
-        const lp = (p || '').toLowerCase();
-        const frontMatch = lp.match(/vest_front[_-]?(\d+)|vestfront[_-]?(\d+)/i);
-        const backMatch = lp.match(/vest_back[_-]?(\d+)|back[_-]?(\d+)/i);
-        if (frontMatch) {
-          const raw = parseInt(frontMatch[1] || frontMatch[2] || '0', 10);
-          const idx0 = Math.max(0, raw - 1); // 1-20 -> 0-19
-          const row = Math.floor(Math.min(15, idx0) / 4); // 4x4 grid
-          return row <= 1 ? 'chest' : 'stomach';
-        }
-        if (backMatch) {
-          const raw = parseInt(backMatch[1] || backMatch[2] || '0', 10);
-          const idx0 = Math.max(0, raw - 1);
-          const row = Math.floor(Math.min(15, idx0) / 4);
-          return row <= 1 ? 'upperBack' : 'lowerBack';
-        }
-        if (/stomach|belly/.test(lp)) return 'stomach';
-        if (/upperback/.test(lp)) return 'upperBack';
-        if (/lowerback/.test(lp)) return 'lowerBack';
-        if (/back|vest_back/.test(lp)) return 'upperBack';
-        if (/chest|front|vest_front/.test(lp)) return 'chest';
-        return 'chest';
-      }
+      renderCheckboxes('zones-checkboxes', ZONES, zones);
+      renderCheckboxes('while-checkboxes', WHILE, allowWhile);
       const c = s.contact || {};
       const activeZones = new Set();
       const ap = c.activeParams || [];
       if (ap.length) ap.forEach(({ param }) => activeZones.add(zoneFromParam(param)));
       else if (c.lastParam) activeZones.add(zoneFromParam(c.lastParam));
-      document.querySelectorAll('#zones-checkboxes .zone-label').forEach((label) => {
-        const key = label.dataset.zoneKey;
-        label.classList.toggle('zone-touched', !!key && activeZones.has(key));
-      });
+      const activeZonesKey = [...activeZones].sort().join('|');
+      if (activeZonesKey !== lastActiveZonesKey) {
+        lastActiveZonesKey = activeZonesKey;
+        if (zoneLabelRefs) {
+          for (let zi = 0; zi < zoneLabelRefs.length; zi++) {
+            const label = zoneLabelRefs[zi];
+            const key = label.dataset.zoneKey;
+            const on = !!key && activeZones.has(key);
+            if (label.classList.contains('zone-touched') !== on) label.classList.toggle('zone-touched', on);
+          }
+        }
+      }
       const v = (c.value ?? 0) * 100;
       const velVal = Math.max(c.velocity ?? 0, c.peakVelocity ?? 0);
       const vel = Math.min(100, velVal * 50);
       const int = s.intensity ?? 0;
-      document.getElementById('contact-value').textContent = v.toFixed(1);
-      document.getElementById('contact-value-bar').style.width = v + '%';
-      document.getElementById('contact-velocity').textContent = velVal.toFixed(2);
-      document.getElementById('contact-velocity-bar').style.width = vel + '%';
-      document.getElementById('intensity-value').textContent = int.toFixed(2);
-      document.getElementById('intensity-bar').style.width = Math.min(100, (int / 2) * 100) + '%';
-      document.getElementById('event-type').textContent = c.eventType || 'idle';
-      document.getElementById('stat-osc').textContent = s.stats?.messagesReceived ?? 0;
-      document.getElementById('stat-haptics').textContent = s.stats?.hapticsSent ?? 0;
+      setText(el('contact-value'), v.toFixed(1));
+      setWidth(el('contact-value-bar'), v + '%');
+      setText(el('contact-velocity'), velVal.toFixed(2));
+      setWidth(el('contact-velocity-bar'), vel + '%');
+      setText(el('intensity-value'), int.toFixed(2));
+      setWidth(el('intensity-bar'), Math.min(100, (int / 2) * 100) + '%');
+      setText(el('event-type'), c.eventType || 'idle');
+      updateLovenseCard(s.lovense);
+      const oscPerSecond = getOscMessagesPerSecond(s.stats?.messagesReceived);
+      setText(el('stat-osc'), oscPerSecond >= 10 ? oscPerSecond.toFixed(0) : oscPerSecond.toFixed(1));
+      setText(el('stat-haptics'), s.stats?.hapticsSent ?? 0);
+      const statLiveEl = el('stat-live');
+      if (statLiveEl) {
+        const oscStreaming = receivingOsc && !s.osc?.stale;
+        const badgeCls = oscStreaming ? 'stat stat-badge-live' : 'stat stat-badge-idle';
+        if (statLiveEl.className !== badgeCls) statLiveEl.className = badgeCls;
+        const badgeText = `● ${oscStreaming ? t('statBadgeLive') : t('statBadgeIdle')}`;
+        if (statLiveEl.textContent !== badgeText) statLiveEl.textContent = badgeText;
+      }
       const log = s.touchLog || [];
       if (showTouchLog) {
-        document.getElementById('touch-log').innerHTML = log.length
+        const touchLogKey = log.map((e) => `${e.timestamp}:${e.zone}:${e.motorIndex}:${e.intensity}:${e.velocity}`).join('|');
+        if (touchLogKey !== lastTouchLogKey) {
+          lastTouchLogKey = touchLogKey;
+          setHtml(el('touch-log'), log.length
           ? log.map((e) => {
               const locale = { ru: 'ru', ua: 'uk', en: 'en' }[lang] || 'en';
               const t = new Date(e.timestamp).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -639,27 +1793,86 @@
               const param = paramShort ? ` (${paramShort})` : '';
               return `<div style="padding:0.15rem 0;border-bottom:1px solid var(--border)">${t} — <strong>${e.zone}${loc}</strong>${param} intensity=${(e.intensity ?? 0).toFixed(2)} vel=${vel}</div>`;
             }).join('')
-          : `<span style="color:var(--muted)">${t('noData')}</span>`;
+          : `<span style="color:var(--muted)">${t('noData')}</span>`);
+        }
       }
-      const act = s.lastMotorActivations || {};
-      const indices = act.indices || [];
-      const actTs = act.timestamp || 0;
-      const age = Date.now() - actTs;
-      const fading = age > 400 && age < 1500;
-      const visible = age < 1500;
-      renderVestMotors('vest-front', visible ? indices.filter((i) => i < 16) : [], fading);
-      renderVestMotors('vest-back', visible ? indices.filter((i) => i >= 16).map((i) => i - 16) : [], fading);
+      const serverAct = s.lastMotorActivations || {};
+      const previewFresh = localMotorPreview && Date.now() - localMotorPreview.timestamp < 600;
+      const serverIsNewer =
+        localMotorPreview &&
+        serverAct.timestamp &&
+        serverAct.timestamp > localMotorPreview.timestamp;
+      renderMotorActivation(previewFresh && !serverIsNewer ? localMotorPreview : serverAct);
       if (showOscDebug) {
         const params = s.lastOscParams || {};
         const entries = Object.entries(params).filter(([, v]) => v !== 0 && v !== false).slice(-12).reverse();
-        document.getElementById('osc-debug').innerHTML = entries.length
-          ? entries.map(([k, v]) => `<div>${k}: ${typeof v === 'number' ? v.toFixed(3) : v}</div>`).join('')
-          : `<span style="color:var(--muted)">${t('noData')}</span>`;
+        const oscDebugKey = entries.map(([k, v]) => `${k}:${v}`).join('|');
+        if (oscDebugKey !== lastOscDebugKey) {
+          lastOscDebugKey = oscDebugKey;
+          setHtml(el('osc-debug'), entries.length
+            ? entries.map(([k, v]) => `<div>${k}: ${typeof v === 'number' ? v.toFixed(3) : v}</div>`).join('')
+            : `<span style="color:var(--muted)">${t('noData')}</span>`);
+        }
       }
     }
 
+    function updateLovenseCard(lv) {
+      const card = el('lovense-card');
+      if (!card) return;
+      const enabled = !!lv?.enabled;
+      const status = lv?.status || (enabled ? 'connecting' : 'disabled');
+      const url = lv?.url || '—';
+      const names = Array.isArray(lv?.deviceNames) ? lv.deviceNames : [];
+      const intensity = Number(lv?.lastIntensity) || 0;
+      const error = lv?.error || '';
+      const ogbCount = lv?.ogbDeviceCount ?? 0;
+      const mode = lv?.mode || 'ogb';
+      const key = `${enabled}|${status}|${url}|${names.join(',')}|${intensity.toFixed(2)}|${error}|${mode}|${ogbCount}`;
+      if (key === lastLovenseKey) return;
+      lastLovenseKey = key;
+
+      const btn = el('btn-lovense-toggle');
+      if (btn) {
+        if (enabled) {
+          if (!btn.classList.contains('on')) btn.classList.add('on');
+          setText(btn, t('lovenseToggleOn'));
+        } else {
+          if (btn.classList.contains('on')) btn.classList.remove('on');
+          setText(btn, t('lovenseToggleOff'));
+        }
+      }
+
+      const dot = el('lovense-status-dot');
+      if (dot) {
+        const cls = 'lovense-status-dot ' + (
+          status === 'connected' ? 'connected'
+          : status === 'connecting' ? 'connecting'
+          : status === 'error' ? 'error'
+          : ''
+        ).trim();
+        if (dot.className !== cls) dot.className = cls;
+      }
+
+      const stateText = (
+        status === 'connected' ? t('lovenseStateConnected')
+        : status === 'connecting' ? t('lovenseStateConnecting')
+        : status === 'error' ? `${t('lovenseStateError')}${error ? ': ' + error : ''}`
+        : status === 'disconnected' ? t('lovenseStateDisconnected')
+        : t('lovenseStateDisabled')
+      );
+      setText(el('lovense-status-text'), stateText);
+      setText(el('lovense-url'), enabled ? (url || '—') : '—');
+      const devText = names.length ? names.join(', ') : t('lovenseNoDevices');
+      const ogbSuffix = enabled && mode === 'ogb' ? ` · ${t('lovenseOgbDevices')}: ${ogbCount}` : '';
+      setText(el('lovense-devices'), devText + ogbSuffix);
+
+      const pct = Math.max(0, Math.min(100, intensity * 100));
+      setWidth(el('lovense-level-bar'), pct.toFixed(0) + '%');
+      setText(el('lovense-level-value'), pct.toFixed(0) + '%');
+    }
+
     fetchState();
-    setInterval(fetchState, 333);
+    setInterval(fetchState, 250);
   </script>
 </body>
 </html>

@@ -1,0 +1,108 @@
+{
+  "ui": {
+    "port": 1969
+  },
+  "osc": {
+    "port": 9001,
+    "host": "127.0.0.1",
+    "sendHost": "127.0.0.1",
+    "sendPort": 9000,
+    "autoFreePorts": true,
+    "useOscQuery": true,
+    "oscQueryRequireBulk": true
+  },
+  "bhaptics": {
+    "appId": "69a8292402b96937d387da5e",
+    "apiKey": "WnAJCQJtB1sNsEnV4KbN",
+    "remote": "127.0.0.1:15881"
+  },
+  "onboarding": {
+    "completed": true
+  },
+  "debug": false,
+  "intensity": {
+    "impactThreshold": 0.32,
+    "velocityMin": 0.12,
+    "velocityMax": 4.2,
+    "durationMin": 0.22,
+    "durationMax": 1.55,
+    "longContactMs": 1200,
+    "emaAlpha": 0.5,
+    "cooldownMs": 25,
+    "sustainCooldownMs": 120,
+    "minIntensity": 0.22,
+    "maxIntensity": 1.8
+  },
+  "haptic": {
+    "eventKey": "customTouch",
+    "useDotMode": true,
+    "vestMotorCount": 16,
+    "motorClusterSize": 0
+  },
+  "contactParams": {
+    "value": "ContactChest",
+    "speed": "ContactSpeed",
+    "zone": "ContactZone",
+    "acceptAll": false,
+    "excludeFaceTracking": false,
+    "contactTimeoutMs": 300,
+    "extra": [],
+    "ignore": [
+      "touch/headpat",
+      "touch/boop",
+      "VF108_superneko.realkiss.contact.activator",
+      "VF10_Slit/Others/Contact/Root",
+      "OGB/Orf/Slit/TouchSelf",
+      "VF10_Slit/Others/Contact/Tip"
+    ]
+  },
+  "lovense": {
+    "enabled": true,
+    "backend": "buttplug",
+    "mode": "ogb",
+    "buttplug": {
+      "url": "ws://127.0.0.1:12345",
+      "clientName": "VRChatOSC-bhaptics-js"
+    },
+    "ogb": {
+      "kinds": [
+        "plug",
+        "socket",
+        "touch"
+      ],
+      "sources": {
+        "ownHands": false,
+        "otherHands": true,
+        "myPlugs": true,
+        "mySockets": true,
+        "otherPlugs": true,
+        "otherSockets": true
+      },
+      "includeIds": [],
+      "excludeIds": []
+    },
+    "params": {
+      "include": [
+        "OGB/",
+        "SPS/",
+        "DPS_",
+        "TPS_Internal/",
+        "VF10_Slit/",
+        "VF108_superneko"
+      ],
+      "ignore": []
+    },
+    "mapping": {
+      "minIntensity": 0,
+      "maxIntensity": 1,
+      "contactTimeoutMs": 400,
+      "emaAlpha": 0.45,
+      "minIntervalMs": 90,
+      "stopAfterIdleMs": 400,
+      "tickHz": 15,
+      "motionBased": true,
+      "maxLevelParam": ""
+    },
+    "triggerVest": true
+  }
+}
